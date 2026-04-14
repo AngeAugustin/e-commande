@@ -1,0 +1,330 @@
+# 🍽️ PROJET : ILOSIWAJU — Application Web de Gestion de Commandes
+
+## 🧭 CONTEXTE DU PROJET
+
+ILOSIWAJU est un restaurant local qui souhaite digitaliser son système de commande via une application web moderne, rapide et intuitive.
+
+L’objectif est de permettre :
+
+* Aux clients de commander facilement sans créer de compte
+* Au restaurant de gérer efficacement les commandes en temps réel
+
+Le projet cible principalement un usage mobile (smartphones), avec une expérience fluide adaptée aux réalités locales (connexion variable, mobile money, simplicité).
+
+---
+
+## 🎯 OBJECTIFS PRODUIT
+
+### 🎯 Objectifs principaux :
+
+* Simplifier la prise de commande
+* Réduire le temps d’attente
+* Centraliser la gestion des commandes
+* Offrir une expérience utilisateur premium
+
+### 🎯 Contraintes :
+
+* Pas d’authentification côté client
+* Interface simple et rapide
+* Compatible mobile-first
+* Performances optimisées
+
+---
+
+## 👥 UTILISATEURS CIBLES
+
+### 1. Client (non connecté)
+
+* Consulte le menu
+* Passe une commande
+* Suit sa commande
+
+### 2. Administrateur (restaurant)
+
+* Gère les plats
+* Suit les commandes
+* Met à jour les statuts
+* Analyse les performances
+
+---
+
+## 🧱 ARCHITECTURE TECHNIQUE
+
+### Stack principale :
+
+* Next.js (App Router)
+* MongoDB
+* Mongoose
+* Tailwind CSS
+* Framer Motion
+* Zustand (state management)
+
+### Structure recommandée :
+
+/app
+/ (client)
+page.tsx
+/menu
+/panier
+/checkout
+/suivi
+
+/admin
+/dashboard
+/produits
+/commandes
+/stats
+
+/components
+/lib
+/models
+/api
+/hooks
+/store
+/styles
+
+---
+
+## 🎨 DESIGN SYSTEM
+
+### Couleurs :
+
+* Noir principal : #000000
+* Blanc : #FFFFFF
+* Gris clair : #F5F5F5
+* Accent : rgba(0,0,0,0.6)
+
+### UI :
+
+* Style minimaliste premium
+* Utilisation de cartes (cards)
+* Bordures arrondies (rounded-xl à 2xl)
+* Ombres douces (shadow-md)
+
+### Effets :
+
+* Glassmorphism léger
+* Dégradés subtils
+* Background avec motifs mosaïques
+
+---
+
+## 📱 RESPONSIVE DESIGN
+
+* Mobile-first
+* Breakpoints Tailwind standards
+* Sidebar :
+
+  * Desktop : fixe
+  * Mobile : drawer
+
+---
+
+## 🧩 FONCTIONNALITÉS
+
+---
+
+### 🟢 FRONT OFFICE
+
+#### Pages :
+
+1. Accueil
+
+* Présentation du restaurant
+* CTA vers menu
+
+2. Menu
+
+* Liste des plats
+* Filtres par catégorie
+* Ajout au panier
+
+3. Panier
+
+* Modifier quantités
+* Supprimer items
+* Voir total
+
+4. Checkout
+
+* Nom client
+* Téléphone
+* Type :
+
+  * Livraison
+  * Retrait
+* Paiement (mock MVP)
+
+5. Suivi commande
+
+* Entrée du code
+* Affichage du statut
+
+---
+
+### 🔐 BACK OFFICE
+
+#### Authentification :
+
+* Login admin sécurisé
+
+#### Dashboard :
+
+* Vue globale
+
+#### Gestion menu :
+
+* CRUD produits
+
+#### Commandes :
+
+* Liste temps réel
+* Update statut :
+
+  * En attente
+  * En préparation
+  * Prêt
+  * Livré
+
+#### Statistiques :
+
+* Total ventes
+* Nombre commandes
+* Top produits
+
+---
+
+## 🧮 MODÉLISATION DES DONNÉES
+
+### Product
+
+* _id
+* name
+* description
+* price
+* image
+* category
+* available (boolean)
+* createdAt
+
+---
+
+### Order
+
+* _id
+* items:
+
+  * productId
+  * name
+  * quantity
+  * price
+* total
+* status
+* deliveryType
+* customer:
+
+  * name
+  * phone
+* orderCode (unique)
+* createdAt
+
+---
+
+### User (Admin)
+
+* _id
+* email
+* password (hashé)
+* role
+
+---
+
+## 🔄 LOGIQUE MÉTIER
+
+### Création commande :
+
+1. Client ajoute au panier
+2. Remplit infos
+3. Génération orderCode unique
+4. Enregistrement DB
+5. Redirection vers suivi
+
+---
+
+### Mise à jour statut :
+
+* Admin change statut
+* Mise à jour en DB
+* Visible côté client
+
+---
+
+## ⚡ BONNES PRATIQUES
+
+* Code modulaire
+* Composants réutilisables
+* API claire
+* Gestion des erreurs
+* Loading states
+* Skeleton loaders
+
+---
+
+## 🎯 PRIORITÉS MVP
+
+1. Menu fonctionnel
+2. Panier
+3. Commande
+4. Dashboard admin
+5. Gestion commandes
+
+---
+
+## 🚀 ÉVOLUTIONS FUTURES
+
+* Paiement réel (Mobile Money API)
+* Notifications WhatsApp/SMS
+* Multi-restaurants
+* Comptes clients
+
+---
+
+## 🧠 DIRECTIVES POUR CURSOR
+
+* Toujours écrire du code propre et structuré
+* Créer des composants réutilisables
+* Optimiser pour mobile
+* Respecter le design premium
+* Commenter les parties importantes
+* Proposer des améliorations UX si pertinentes
+
+---
+
+## 🔥 EXPÉRIENCE UTILISATEUR
+
+L’application doit donner une impression :
+
+* Rapide
+* Fluide
+* Moderne
+* Professionnelle
+* Fiable
+
+Chaque interaction doit être simple et intuitive.
+
+---
+
+## 🌍 LANGUE
+
+Toute l’application doit être en FRANÇAIS :
+
+* Boutons
+* Messages
+* Interfaces
+* Erreurs
+
+---
+
+## 📌 NOTE IMPORTANTE
+
+Ce projet doit être traité comme un produit réel prêt à être utilisé en production, et non comme un simple prototype.

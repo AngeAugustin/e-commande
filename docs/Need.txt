@@ -1,0 +1,202 @@
+Tu es un expert senior en développement fullstack spécialisé en Next.js (App Router), MongoDB avec Mongoose, et en design UI/UX premium.
+
+Tu dois concevoir et développer une application web full responsive pour un restaurant local appelé "ILOSIWAJU".
+
+---
+
+# 🎯 OBJECTIF GLOBAL
+
+Créer une application moderne, rapide, élégante et professionnelle permettant :
+
+* Aux clients de commander sans compte
+* Au restaurant de gérer les commandes via un back office sécurisé
+
+Le rendu doit être PREMIUM, minimaliste, fluide, et adapté au marché africain.
+
+---
+
+# 🎨 DESIGN UI/UX (TRÈS IMPORTANT)
+
+## Direction artistique :
+
+* Style : moderne, premium, minimaliste, authentique
+* Inspiration : Apple, Stripe, Notion (simplicité + élégance)
+* Couleurs :
+
+  * Primaire : Noir profond (#000000)
+  * Background : Blanc (#FFFFFF)
+  * Accent : dégradés subtils (gris, noir transparent)
+* Effets :
+
+  * Glassmorphism léger
+  * Dégradés transparents
+  * Motifs mosaïques subtils en background
+  * Ombres douces
+* Typographie :
+
+  * Moderne, lisible, élégante (ex: Inter, Poppins)
+
+## Expérience utilisateur :
+
+* Ultra fluide
+* Responsive mobile-first
+* Navigation intuitive
+* Animations légères (Framer Motion recommandé)
+
+---
+
+# 🧱 ARCHITECTURE TECHNIQUE
+
+## Stack :
+
+* Next.js (App Router)
+* MongoDB + Mongoose
+* API Routes (REST ou Server Actions)
+* Tailwind CSS
+* Zustand ou Context API (state management)
+* Authentification via JWT ou NextAuth
+
+---
+
+# 🧩 FONCTIONNALITÉS
+
+## 🟢 FRONT OFFICE (CLIENT - sans connexion)
+
+### Pages :
+
+1. Accueil
+2. Menu
+3. Panier
+4. Paiement
+5. Suivi de commande
+
+### Features :
+
+* Voir les plats (image, description, prix)
+* Ajouter au panier
+* Choisir :
+
+  * Livraison
+  * Retrait
+* Paiement (simulation pour MVP)
+* Génération d’un code de commande unique
+* Page de suivi avec statut :
+
+  * En attente
+  * En préparation
+  * Prêt
+  * Livré
+
+---
+
+## 🔐 BACK OFFICE (ADMIN - avec connexion)
+
+### Dashboard :
+
+* Sidebar moderne (responsive)
+* Header propre avec infos utilisateur
+
+### Pages :
+
+1. Gestion du menu (CRUD)
+2. Commandes en temps réel
+3. Mise à jour des statuts
+4. Statistiques :
+
+   * Total ventes
+   * Commandes
+   * Plats populaires
+
+---
+
+# 🧮 MODÉLISATION MONGODB
+
+Créer les modèles suivants :
+
+## User
+
+* email
+* password
+* role (admin)
+
+## Product
+
+* name
+* description
+* price
+* image
+* category
+* available
+
+## Order
+
+* items (produits + quantité)
+* total
+* status
+* deliveryType (livraison / retrait)
+* customerInfo (nom, téléphone)
+* createdAt
+* orderCode (unique)
+
+---
+
+# 🧠 BONNES PRATIQUES
+
+* Code propre, modulaire et scalable
+* Composants réutilisables
+* Séparation claire frontend/backend
+* Gestion des erreurs
+* Loading states et skeletons
+* Optimisation SEO basique
+* Accessibilité
+
+---
+
+# 📱 RESPONSIVE DESIGN
+
+* Mobile-first obligatoire
+* Adapté :
+
+  * Mobile
+  * Tablette
+  * Desktop
+* Sidebar adaptative (drawer sur mobile)
+
+---
+
+# 🌍 LANGUE
+
+* Toute l’interface doit être en FRANÇAIS
+* Textes clairs, simples, professionnels
+
+---
+
+# ⚡ LIVRABLE ATTENDU
+
+* Structure complète du projet
+* Pages + composants
+* API fonctionnelle
+* Design cohérent
+* Données mock si nécessaire
+
+---
+
+# 🔥 BONUS (si possible)
+
+* Animations Framer Motion
+* Dark mode subtil
+* Notifications (toast)
+* Expérience utilisateur premium
+
+---
+
+Travaille étape par étape :
+
+1. Structure du projet
+2. Design system
+3. Front office
+4. Back office
+5. API + base de données
+6. Finitions UI/UX
+
+Chaque étape doit être propre, commentée et prête pour la production.
