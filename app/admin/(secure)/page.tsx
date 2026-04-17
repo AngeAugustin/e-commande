@@ -1,6 +1,14 @@
 import Link from "next/link";
 
 import { DashboardAnalytics } from "@/components/admin/dashboard-analytics";
+import {
+  aggregateMonthlySalesLast12,
+  aggregateOrderMetrics,
+  aggregateOrdersByDelivery,
+  aggregateOrdersByStatus,
+  aggregateTopProducts,
+  countInProgressOrders,
+} from "@/lib/admin-order-stats";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Order } from "@/models/Order";
@@ -11,45 +19,56 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
   await connectToDatabase();
-  const [allOrders, recentOrders, products] = await Promise.all([
-    Order.find().sort({ createdAt: -1 }).lean(),
-    Order.find().sort({ createdAt: -1 }).limit(10).lean(),
+
+  const monthSlots = Array.from({ length: 12 }, (_, index) => {
+    const d = new Date();
+    d.setUTCHours(0, 0, 0, 0);
+    d.setUTCDate(1);
+    d.setUTCMonth(d.getUTCMonth() - (11 - index));
+    const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+    const month = d.toLocaleDateString("fr-FR", { month: "short", timeZone: "UTC" });
+    return { key, month };
+  });
+
+  const [
+    products,
+    metricsAgg,
+    inProgressOrders,
+    monthlyByMonth,
+    statusAgg,
+    deliveryAgg,
+    topProductsAgg,
+    recentOrders,
+  ] = await Promise.all([
     Product.countDocuments(),
+    aggregateOrderMetrics(),
+    countInProgressOrders(),
+    aggregateMonthlySalesLast12(),
+    aggregateOrdersByStatus(),
+    aggregateOrdersByDelivery(),
+    aggregateTopProducts(),
+    Order.find()
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .select({ orderCode: 1, customerInfo: 1, deliveryType: 1, status: 1, total: 1 })
+      .lean(),
   ]);
 
-  const totalSales = allOrders.reduce((acc, order) => acc + order.total, 0);
-  const inProgressOrders = allOrders.filter(
-    (order) => order.status === "en_attente" || order.status === "en_preparation",
-  ).length;
-  const totalOrders = allOrders.length;
+  const totalSales = metricsAgg[0]?.totalSales ?? 0;
+  const totalOrders = metricsAgg[0]?.totalOrders ?? 0;
 
-  const dayLabels = Array.from({ length: 14 }, (_, index) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (13 - index));
-    const label = date.toLocaleDateString("fr-FR", {
-      day: "2-digit",
-      month: "2-digit",
-    });
-    return { key: date.toISOString().slice(0, 10), label };
+  const monthlyMap = new Map(
+    monthlyByMonth.map((row) => [row._id, row] as const),
+  );
+  const salesEvolution = monthSlots.map(({ key, month }) => {
+    const row = monthlyMap.get(key);
+    return {
+      month,
+      total: row?.total ?? 0,
+      livraison: row?.livraison ?? 0,
+      retrait: row?.retrait ?? 0,
+    };
   });
-
-  const dailyMap = new Map<string, { ventes: number; commandes: number }>();
-  dayLabels.forEach((day) => dailyMap.set(day.key, { ventes: 0, commandes: 0 }));
-
-  allOrders.forEach((order) => {
-    const key = new Date(order.createdAt).toISOString().slice(0, 10);
-    if (!dailyMap.has(key)) return;
-    const current = dailyMap.get(key)!;
-    current.ventes += order.total;
-    current.commandes += 1;
-    dailyMap.set(key, current);
-  });
-
-  const dailySales = dayLabels.map((day) => ({
-    day: day.label,
-    ventes: dailyMap.get(day.key)?.ventes || 0,
-    commandes: dailyMap.get(day.key)?.commandes || 0,
-  }));
 
   const statusCounts = new Map<OrderStatus, number>([
     ["en_attente", 0],
@@ -57,10 +76,11 @@ export default async function AdminDashboardPage() {
     ["pret", 0],
     ["livre", 0],
   ]);
-  allOrders.forEach((order) => {
-    const status = order.status as OrderStatus;
-    statusCounts.set(status, (statusCounts.get(status) || 0) + 1);
-  });
+  for (const row of statusAgg) {
+    if (row._id) {
+      statusCounts.set(row._id, row.value);
+    }
+  }
   const statusDistribution = Array.from(statusCounts.entries()).map(([status, value]) => ({
     name: ORDER_STATUS_LABELS[status],
     value,
@@ -70,24 +90,20 @@ export default async function AdminDashboardPage() {
     ["livraison", 0],
     ["retrait", 0],
   ]);
-  allOrders.forEach((order) => {
-    deliveryMap.set(order.deliveryType, (deliveryMap.get(order.deliveryType) || 0) + 1);
-  });
+  for (const row of deliveryAgg) {
+    if (row._id) {
+      deliveryMap.set(row._id, row.value);
+    }
+  }
   const deliveryDistribution = Array.from(deliveryMap.entries()).map(([name, value]) => ({
     name: name === "livraison" ? "Livraison" : "Retrait",
     value,
   }));
 
-  const productsMap = new Map<string, number>();
-  allOrders.forEach((order) => {
-    order.items.forEach((item: { name: string; quantity: number }) => {
-      productsMap.set(item.name, (productsMap.get(item.name) || 0) + item.quantity);
-    });
-  });
-  const topProducts = Array.from(productsMap.entries())
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 6)
-    .map(([name, quantity]) => ({ name, quantity }));
+  const topProducts = topProductsAgg.map((row) => ({
+    name: row._id,
+    quantity: row.quantity,
+  }));
 
   const recentOrdersRows = recentOrders.map((order) => ({
     orderCode: order.orderCode,
@@ -122,7 +138,7 @@ export default async function AdminDashboardPage() {
           inProgressOrders,
           activeProducts: products,
         }}
-        dailySales={dailySales}
+        salesEvolution={salesEvolution}
         statusDistribution={statusDistribution}
         deliveryDistribution={deliveryDistribution}
         topProducts={topProducts}

@@ -12,7 +12,7 @@ const links = [
   { href: "/suivi", label: "Suivi" },
 ];
 
-const whatsappHref = "https://wa.me/22954053660";
+const whatsappHref = "https://wa.me/2290197339551";
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -48,7 +48,7 @@ export function SiteHeader() {
                 <path d="M3 15h18" />
                 <path d="M5 19h14" />
               </svg>
-              ILOSIWAJU
+              Manger Sain (Chez DOSSOU-YOVO)
             </span>
           </Link>
 

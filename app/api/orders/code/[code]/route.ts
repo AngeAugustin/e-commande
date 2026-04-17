@@ -11,7 +11,7 @@ export async function GET(_: Request, { params }: RouteParams) {
   try {
     const { code } = await params;
     await connectToDatabase();
-    const order = await Order.findOne({ orderCode: code });
+    const order = await Order.findOne({ orderCode: code }).lean();
 
     if (!order) {
       return NextResponse.json({ message: "Commande introuvable" }, { status: 404 });

@@ -79,7 +79,9 @@ export default function AdminLoginPage() {
                   <path d="M5 19h14" />
                 </svg>
               </span>
-              <span className="text-xs font-semibold tracking-[0.2em]">ILOSIWAJU</span>
+              <span className="text-xs font-semibold tracking-[0.2em]">
+                Manger Sain (Chez DOSSOU-YOVO)
+              </span>
             </div>
 
             <h1 className="mt-6 text-3xl font-black leading-tight sm:text-4xl">

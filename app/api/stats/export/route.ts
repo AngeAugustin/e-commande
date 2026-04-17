@@ -43,10 +43,12 @@ export async function GET() {
 
     const doc = new PDFDocument({ margin: 40, size: "A4" });
     const now = new Date();
-    doc.info.Title = "ILOSIWAJU - Rapport Dashboard";
-    doc.info.Author = "ILOSIWAJU";
+    doc.info.Title = "Manger Sain (Chez DOSSOU-YOVO) - Rapport Dashboard";
+    doc.info.Author = "Manger Sain (Chez DOSSOU-YOVO)";
 
-    doc.fontSize(20).text("ILOSIWAJU - Rapport Dashboard", { align: "left" });
+    doc.fontSize(20).text("Manger Sain (Chez DOSSOU-YOVO) - Rapport Dashboard", {
+      align: "left",
+    });
     doc.moveDown(0.3);
     doc.fontSize(10).fillColor("#555").text(`Date export: ${now.toLocaleString("fr-FR")}`);
     doc.moveDown(1);
@@ -86,7 +88,7 @@ export async function GET() {
     const pdfBuffer = await toPdfBuffer(doc);
     const filename = `dashboard-report-${now.toISOString().slice(0, 10)}.pdf`;
 
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(new Uint8Array(pdfBuffer), {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="${filename}"`,

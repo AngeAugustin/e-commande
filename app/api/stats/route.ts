@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { aggregateTopProducts, aggregateTotalVentes } from "@/lib/admin-order-stats";
 import { ensureAdminApi } from "@/lib/api-guard";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Order } from "@/models/Order";
@@ -12,22 +13,17 @@ export async function GET() {
 
   try {
     await connectToDatabase();
-    const orders = await Order.find();
+    const [totalCommandes, ventesRows, platsAgg] = await Promise.all([
+      Order.countDocuments(),
+      aggregateTotalVentes(),
+      aggregateTopProducts(5),
+    ]);
 
-    const totalCommandes = orders.length;
-    const totalVentes = orders.reduce((acc, order) => acc + order.total, 0);
-    const productsMap = new Map<string, number>();
-
-    for (const order of orders) {
-      for (const item of order.items) {
-        productsMap.set(item.name, (productsMap.get(item.name) || 0) + item.quantity);
-      }
-    }
-
-    const platsPopulaires = [...productsMap.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([name, quantity]) => ({ name, quantity }));
+    const totalVentes = ventesRows[0]?.ventes ?? 0;
+    const platsPopulaires = platsAgg.map((row) => ({
+      name: row._id,
+      quantity: row.quantity,
+    }));
 
     return NextResponse.json({
       totalCommandes,

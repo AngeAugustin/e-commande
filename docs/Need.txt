@@ -1,6 +1,6 @@
 Tu es un expert senior en développement fullstack spécialisé en Next.js (App Router), MongoDB avec Mongoose, et en design UI/UX premium.
 
-Tu dois concevoir et développer une application web full responsive pour un restaurant local appelé "ILOSIWAJU".
+Tu dois concevoir et développer une application web full responsive pour un restaurant local appelé "Manger Sain (Chez DOSSOU-YOVO)".
 
 ---
 

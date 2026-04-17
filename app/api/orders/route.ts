@@ -5,15 +5,27 @@ import { generateOrderCode } from "@/lib/utils";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Order } from "@/models/Order";
 
-export async function GET() {
+export async function GET(request: Request) {
   const unauthorized = await ensureAdminApi();
   if (unauthorized) {
     return unauthorized;
   }
 
   try {
+    const { searchParams } = new URL(request.url);
+    const limitRaw = Number.parseInt(searchParams.get("limit") ?? "100", 10);
+    const skipRaw = Number.parseInt(searchParams.get("skip") ?? "0", 10);
+    const limit = Number.isFinite(limitRaw)
+      ? Math.min(500, Math.max(1, Math.floor(limitRaw)))
+      : 100;
+    const skip = Number.isFinite(skipRaw) ? Math.max(0, Math.floor(skipRaw)) : 0;
+
     await connectToDatabase();
-    const orders = await Order.find().sort({ createdAt: -1 });
+    const orders = await Order.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
     return NextResponse.json(orders);
   } catch {
     return NextResponse.json(

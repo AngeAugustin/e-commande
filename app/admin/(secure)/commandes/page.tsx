@@ -2,6 +2,11 @@ import Link from "next/link";
 
 import { OrderStatusSelect } from "@/components/admin/order-status-select";
 import { Card } from "@/components/ui/card";
+import {
+  aggregateTotalVentes,
+  countDeliveredOrders,
+  countInProgressOrders,
+} from "@/lib/admin-order-stats";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import { connectToDatabase } from "@/lib/mongodb";
 import { formatPrice } from "@/lib/utils";
@@ -10,14 +15,36 @@ import type { OrderStatus } from "@/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminCommandesPage() {
+const PAGE_SIZE = 25;
+
+type AdminCommandesPageProps = {
+  searchParams: Promise<{ page?: string }>;
+};
+
+export default async function AdminCommandesPage({ searchParams }: AdminCommandesPageProps) {
+  const { page: pageRaw } = await searchParams;
+  const parsed = Number.parseInt(pageRaw ?? "1", 10);
+  const requestedPage =
+    Number.isFinite(parsed) && parsed > 0 ? Math.min(Math.floor(parsed), 10_000) : 1;
+
   await connectToDatabase();
-  const orders = await Order.find().sort({ createdAt: -1 }).lean();
-  const totalVentes = orders.reduce((acc, order) => acc + order.total, 0);
-  const enCours = orders.filter(
-    (order) => order.status === "en_attente" || order.status === "en_preparation",
-  ).length;
-  const terminees = orders.filter((order) => order.status === "livre").length;
+
+  const [totalCount, totalsAgg, enCours, terminees] = await Promise.all([
+    Order.countDocuments(),
+    aggregateTotalVentes(),
+    countInProgressOrders(),
+    countDeliveredOrders(),
+  ]);
+
+  const totalVentes = totalsAgg[0]?.ventes ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const safePage = Math.min(requestedPage, totalPages);
+
+  const ordersPage = await Order.find()
+    .sort({ createdAt: -1 })
+    .skip((safePage - 1) * PAGE_SIZE)
+    .limit(PAGE_SIZE)
+    .lean();
 
   return (
     <section className="space-y-5">
@@ -39,7 +66,7 @@ export default async function AdminCommandesPage() {
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <Card>
           <p className="text-sm text-zinc-500">Total commandes</p>
-          <p className="mt-1 text-2xl font-black">{orders.length}</p>
+          <p className="mt-1 text-2xl font-black">{totalCount}</p>
         </Card>
         <Card>
           <p className="text-sm text-zinc-500">Ventes cumulees</p>
@@ -67,10 +94,11 @@ export default async function AdminCommandesPage() {
                 <th className="px-4 py-3 font-semibold">Total</th>
                 <th className="px-4 py-3 font-semibold">Statut</th>
                 <th className="px-4 py-3 font-semibold">Action</th>
+                <th className="px-4 py-3 font-semibold">Ticket</th>
               </tr>
             </thead>
             <tbody>
-              {orders.map((order) => (
+              {ordersPage.map((order) => (
                 <tr key={String(order._id)} className="border-t border-zinc-100">
                   <td className="px-4 py-3 font-semibold">{order.orderCode}</td>
                   <td className="px-4 py-3">
@@ -93,11 +121,68 @@ export default async function AdminCommandesPage() {
                       value={order.status as OrderStatus}
                     />
                   </td>
+                  <td className="px-4 py-3">
+                    <Link
+                      href={`/api/orders/code/${order.orderCode}/receipt`}
+                      target="_blank"
+                      title="Telecharger le recu"
+                      aria-label={`Telecharger le recu de la commande ${order.orderCode}`}
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700 transition hover:border-zinc-400 hover:text-black"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                        className="h-4.5 w-4.5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M12 3v11" />
+                        <path d="m8 10 4 4 4-4" />
+                        <path d="M4 17.5v1.2A2.3 2.3 0 0 0 6.3 21h11.4a2.3 2.3 0 0 0 2.3-2.3v-1.2" />
+                      </svg>
+                    </Link>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+        {totalPages > 1 ? (
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-zinc-100 px-4 py-3 text-sm text-zinc-600">
+            <p>
+              Page {safePage} sur {totalPages} ({totalCount} commandes)
+            </p>
+            <div className="flex gap-2">
+              {safePage > 1 ? (
+                <Link
+                  href={`/admin/commandes?page=${safePage - 1}`}
+                  className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 font-semibold text-black transition hover:border-zinc-400"
+                >
+                  Precedente
+                </Link>
+              ) : (
+                <span className="rounded-lg border border-transparent px-3 py-1.5 text-zinc-400">
+                  Precedente
+                </span>
+              )}
+              {safePage < totalPages ? (
+                <Link
+                  href={`/admin/commandes?page=${safePage + 1}`}
+                  className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 font-semibold text-black transition hover:border-zinc-400"
+                >
+                  Suivante
+                </Link>
+              ) : (
+                <span className="rounded-lg border border-transparent px-3 py-1.5 text-zinc-400">
+                  Suivante
+                </span>
+              )}
+            </div>
+          </div>
+        ) : null}
       </Card>
     </section>
   );

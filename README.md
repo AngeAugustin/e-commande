@@ -1,4 +1,4 @@
-# ILOSIWAJU - e-commande
+# Manger Sain (Chez DOSSOU-YOVO) - e-commande
 
 Application fullstack Next.js (App Router) pour un restaurant local:
 

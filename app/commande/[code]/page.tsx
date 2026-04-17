@@ -13,7 +13,7 @@ type CommandePageProps = {
   params: Promise<{ code: string }>;
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 15;
 
 export default async function CommandePage({ params }: CommandePageProps) {
   const { code } = await params;
@@ -25,6 +25,7 @@ export default async function CommandePage({ params }: CommandePageProps) {
   }
 
   const currentStepIndex = ORDER_STATUSES.indexOf(order.status as OrderStatus);
+  const currentStatus = order.status as OrderStatus;
 
   return (
     <section className="mx-auto max-w-2xl space-y-4">
@@ -64,16 +65,35 @@ export default async function CommandePage({ params }: CommandePageProps) {
             {ORDER_STATUSES.map((status, index) => {
               const isPast = index < currentStepIndex;
               const isCurrent = index === currentStepIndex;
-              const statusClass = isPast
-                ? "border-emerald-600 bg-emerald-50 text-emerald-700"
-                : isCurrent
-                  ? "border-orange-500 bg-orange-50 text-orange-700"
-                  : "border-zinc-300 bg-white text-zinc-500";
-              const textClass = isPast
-                ? "text-emerald-700"
-                : isCurrent
-                  ? "text-orange-700"
-                  : "text-zinc-500";
+              const isLivreNextWhenPret = currentStatus === "pret" && status === "livre";
+
+              const emerald =
+                "border-emerald-600 bg-emerald-50 text-emerald-700" as const;
+              const orange =
+                "border-orange-500 bg-orange-50 text-orange-700" as const;
+              const muted = "border-zinc-300 bg-white text-zinc-500" as const;
+
+              let statusClass: string;
+              let textClass: string;
+              if (isLivreNextWhenPret) {
+                statusClass = orange;
+                textClass = "text-orange-700";
+              } else if (currentStatus === "pret" && isCurrent) {
+                statusClass = emerald;
+                textClass = "text-emerald-700";
+              } else if (currentStatus === "livre" && isCurrent) {
+                statusClass = emerald;
+                textClass = "text-emerald-700";
+              } else if (isPast) {
+                statusClass = emerald;
+                textClass = "text-emerald-700";
+              } else if (isCurrent) {
+                statusClass = orange;
+                textClass = "text-orange-700";
+              } else {
+                statusClass = muted;
+                textClass = "text-zinc-500";
+              }
 
               return (
                 <li key={status} className="flex flex-col items-center gap-1.5 text-center">

@@ -16,8 +16,9 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "ILOSIWAJU | Commande en ligne",
-  description: "Application premium de commande et gestion du restaurant ILOSIWAJU",
+  title: "Manger Sain (Chez DOSSOU-YOVO) | Commande en ligne",
+  description:
+    "Application premium de commande et gestion du restaurant Manger Sain (Chez DOSSOU-YOVO)",
 };
 
 export default function RootLayout({

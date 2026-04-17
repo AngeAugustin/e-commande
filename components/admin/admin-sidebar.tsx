@@ -113,7 +113,7 @@ export function AdminSidebar({
               </svg>
             </span>
             <div>
-              <p className="text-base font-black tracking-tight">ILOSIWAJU</p>
+              <p className="text-base font-black tracking-tight">Manger Sain (Chez DOSSOU-YOVO)</p>
               <p className="text-xs text-zinc-500">Back Office Admin</p>
             </div>
           </div>
@@ -149,7 +149,7 @@ export function AdminSidebar({
                 </svg>
               </span>
               <div>
-                <p className="text-base font-black tracking-tight">ILOSIWAJU</p>
+                <p className="text-base font-black tracking-tight">Manger Sain (Chez DOSSOU-YOVO)</p>
                 <p className="text-xs text-zinc-500">Back Office</p>
               </div>
             </div>

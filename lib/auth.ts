@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { cache } from "react";
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev_secret_to_change";
 const AUTH_COOKIE = "ilosiwaju_admin_token";
@@ -30,7 +31,7 @@ export function verifyAdminToken(token: string): AdminTokenPayload | null {
   }
 }
 
-export async function getAdminFromCookie() {
+export const getAdminFromCookie = cache(async () => {
   const cookieStore = await cookies();
   const token = cookieStore.get(AUTH_COOKIE)?.value;
 
@@ -39,7 +40,7 @@ export async function getAdminFromCookie() {
   }
 
   return verifyAdminToken(token);
-}
+});
 
 export function getAuthCookieName() {
   return AUTH_COOKIE;

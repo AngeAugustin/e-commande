@@ -8,7 +8,7 @@ export default function Home() {
           Restaurant local premium
         </div>
         <h1 className="max-w-3xl text-4xl font-black leading-tight tracking-tight sm:text-6xl">
-          Commandez vos plats ILOSIWAJU en quelques secondes.
+          Commandez vos plats Manger Sain (Chez DOSSOU-YOVO) en quelques secondes.
         </h1>
         <p className="max-w-2xl text-base text-zinc-600 sm:text-lg">
           Une experience fluide, elegante et rapide, pensee pour le mobile et pour
