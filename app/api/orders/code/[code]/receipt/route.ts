@@ -2,6 +2,7 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { NextResponse } from "next/server";
 
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
+import { isOrderPaid } from "@/lib/order-payment";
 import { connectToDatabase } from "@/lib/mongodb";
 import { formatPrice } from "@/lib/utils";
 import { Order } from "@/models/Order";
@@ -35,6 +36,10 @@ export async function GET(_: Request, { params }: RouteParams) {
 
     if (!order) {
       return NextResponse.json({ message: "Commande introuvable" }, { status: 404 });
+    }
+
+    if (!isOrderPaid(order.paymentStatus as string | undefined)) {
+      return NextResponse.json({ message: "Commande non payee" }, { status: 403 });
     }
 
     const now = new Date();

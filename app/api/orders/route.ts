@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 
 import { ensureAdminApi } from "@/lib/api-guard";
-import { generateOrderCode } from "@/lib/utils";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Order } from "@/models/Order";
+
+export const runtime = "nodejs";
 
 export async function GET(request: Request) {
   const unauthorized = await ensureAdminApi();
@@ -35,40 +36,16 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-
-    if (!body?.items?.length) {
-      return NextResponse.json({ message: "Panier vide" }, { status: 400 });
-    }
-    if (!body?.customerInfo?.name || !body?.customerInfo?.phone) {
-      return NextResponse.json(
-        { message: "Nom et telephone client obligatoires" },
-        { status: 400 },
-      );
-    }
-    if (body.deliveryType === "livraison" && !body?.customerInfo?.address?.trim()) {
-      return NextResponse.json(
-        { message: "Adresse de livraison obligatoire" },
-        { status: 400 },
-      );
-    }
-
-    await connectToDatabase();
-
-    const orderCode = generateOrderCode();
-    const created = await Order.create({
-      ...body,
-      orderCode,
-      status: "en_attente",
-    });
-
-    return NextResponse.json(created, { status: 201 });
-  } catch {
-    return NextResponse.json(
-      { message: "Creation de commande impossible" },
-      { status: 500 },
-    );
-  }
+/**
+ * L’ancien flux passait par POST /api/orders sans FedaPay. Les bundles JS mis en cache
+ * continuaient d’appeler cette URL : ils recevront cette erreur jusqu’à rechargement forcé.
+ */
+export async function POST() {
+  return NextResponse.json(
+    {
+      message:
+        "Mise a jour requise : rechargez la page avec Ctrl+Maj+R (Windows) ou Cmd+Maj+R (Mac), puis reessayez. Le paiement passe maintenant par FedaPay.",
+    },
+    { status: 410 },
+  );
 }

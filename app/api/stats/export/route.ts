@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 import { ensureAdminApi } from "@/lib/api-guard";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
+import { paidOrdersFilter } from "@/lib/order-payment";
 import { connectToDatabase } from "@/lib/mongodb";
 import { formatPrice } from "@/lib/utils";
 import { Order } from "@/models/Order";
@@ -31,7 +32,7 @@ export async function GET() {
     await connectToDatabase();
 
     const [orders, productsCount] = await Promise.all([
-      Order.find().sort({ createdAt: -1 }).limit(20).lean(),
+      Order.find(paidOrdersFilter()).sort({ createdAt: -1 }).limit(20).lean(),
       Product.countDocuments(),
     ]);
 

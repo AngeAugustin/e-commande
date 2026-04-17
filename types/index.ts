@@ -6,6 +6,8 @@ export type OrderStatus =
   | "pret"
   | "livre";
 
+export type OrderPaymentStatus = "pending" | "paid" | "failed";
+
 export interface CartItem {
   productId: string;
   name: string;
@@ -37,5 +39,7 @@ export interface OrderDto {
     address?: string;
   };
   orderCode: string;
+  paymentStatus?: OrderPaymentStatus;
+  fedapayTransactionId?: string;
   createdAt: string;
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { aggregateTopProducts, aggregateTotalVentes } from "@/lib/admin-order-stats";
+import { paidOrdersFilter } from "@/lib/order-payment";
 import { ensureAdminApi } from "@/lib/api-guard";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Order } from "@/models/Order";
@@ -14,7 +15,7 @@ export async function GET() {
   try {
     await connectToDatabase();
     const [totalCommandes, ventesRows, platsAgg] = await Promise.all([
-      Order.countDocuments(),
+      Order.countDocuments(paidOrdersFilter()),
       aggregateTotalVentes(),
       aggregateTopProducts(5),
     ]);

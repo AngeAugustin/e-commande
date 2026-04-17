@@ -1,3 +1,4 @@
+import { paidOrdersFilter } from "@/lib/order-payment";
 import type { OrderStatus } from "@/types";
 import { Order } from "@/models/Order";
 
@@ -20,7 +21,7 @@ export function aggregateMonthlySalesLast12(): Promise<Array<MonthlySalesAggRow>
   const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 11, 1, 0, 0, 0, 0));
 
   return Order.aggregate([
-    { $match: { createdAt: { $gte: start } } },
+    { $match: { createdAt: { $gte: start }, ...paidOrdersFilter() } },
     {
       $group: {
         _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
@@ -43,6 +44,7 @@ export function aggregateMonthlySalesLast12(): Promise<Array<MonthlySalesAggRow>
 
 export function aggregateOrderMetrics(): Promise<Array<MetricsAggRow>> {
   return Order.aggregate([
+    { $match: paidOrdersFilter() },
     { $group: { _id: null, totalSales: { $sum: "$total" }, totalOrders: { $sum: 1 } } },
   ]) as Promise<Array<MetricsAggRow>>;
 }
@@ -55,6 +57,7 @@ export function aggregateDailyOrders(
     {
       $match: {
         createdAt: { $gte: chartRangeStart, $lte: chartRangeEnd },
+        ...paidOrdersFilter(),
       },
     },
     {
@@ -69,18 +72,21 @@ export function aggregateDailyOrders(
 
 export function aggregateOrdersByStatus(): Promise<Array<StatusAggRow>> {
   return Order.aggregate([
+    { $match: paidOrdersFilter() },
     { $group: { _id: "$status", value: { $sum: 1 } } },
   ]) as Promise<Array<StatusAggRow>>;
 }
 
 export function aggregateOrdersByDelivery(): Promise<Array<DeliveryAggRow>> {
   return Order.aggregate([
+    { $match: paidOrdersFilter() },
     { $group: { _id: "$deliveryType", value: { $sum: 1 } } },
   ]) as Promise<Array<DeliveryAggRow>>;
 }
 
 export function aggregateTopProducts(limit = 6): Promise<Array<TopProductAggRow>> {
   return Order.aggregate([
+    { $match: paidOrdersFilter() },
     { $unwind: "$items" },
     { $group: { _id: "$items.name", quantity: { $sum: "$items.quantity" } } },
     { $sort: { quantity: -1 } },
@@ -90,6 +96,7 @@ export function aggregateTopProducts(limit = 6): Promise<Array<TopProductAggRow>
 
 export function aggregateTotalVentes(): Promise<Array<VentesAggRow>> {
   return Order.aggregate([
+    { $match: paidOrdersFilter() },
     { $group: { _id: null, ventes: { $sum: "$total" } } },
   ]) as Promise<Array<VentesAggRow>>;
 }
@@ -97,10 +104,12 @@ export function aggregateTotalVentes(): Promise<Array<VentesAggRow>> {
 export function countInProgressOrders() {
   const inList = "$" + "in";
   return Order.countDocuments({
-    status: { [inList]: ["en_attente", "en_preparation"] },
+    $and: [{ status: { [inList]: ["en_attente", "en_preparation"] } }, paidOrdersFilter()],
   });
 }
 
 export function countDeliveredOrders() {
-  return Order.countDocuments({ status: "livre" });
+  return Order.countDocuments({
+    $and: [{ status: "livre" }, paidOrdersFilter()],
+  });
 }

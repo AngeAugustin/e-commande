@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 
 import { CopyOrderCodeButton } from "@/components/commande/copy-order-code-button";
@@ -22,6 +22,13 @@ export default async function CommandePage({ params }: CommandePageProps) {
 
   if (!order) {
     notFound();
+  }
+
+  if (order.paymentStatus === "pending") {
+    redirect(`/commande/${code}/paiement`);
+  }
+  if (order.paymentStatus === "failed") {
+    redirect("/checkout");
   }
 
   const currentStepIndex = ORDER_STATUSES.indexOf(order.status as OrderStatus);

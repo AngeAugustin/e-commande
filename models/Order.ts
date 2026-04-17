@@ -27,6 +27,11 @@ const orderSchema = new Schema(
       address: { type: String, default: "" },
     },
     orderCode: { type: String, required: true, unique: true },
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "paid", "failed"],
+    },
+    fedapayTransactionId: { type: String, default: "" },
   },
   { timestamps: true },
 );
