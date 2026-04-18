@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { OrderStatusBadge } from "@/components/admin/order-status-badge";
 import { OrderStatusSelect } from "@/components/admin/order-status-select";
 import { Card } from "@/components/ui/card";
 import {
@@ -7,7 +8,6 @@ import {
   countDeliveredOrders,
   countInProgressOrders,
 } from "@/lib/admin-order-stats";
-import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import { connectToDatabase } from "@/lib/mongodb";
 import { formatPrice } from "@/lib/utils";
 import { Order } from "@/models/Order";
@@ -113,12 +113,16 @@ export default async function AdminCommandesPage({ searchParams }: AdminCommande
                   </td>
                   <td className="px-4 py-3">{formatPrice(order.total)}</td>
                   <td className="px-4 py-3">
-                    {ORDER_STATUS_LABELS[order.status as OrderStatus]}
+                    <OrderStatusBadge
+                      status={order.status as OrderStatus}
+                      paymentStatus={order.paymentStatus as string | undefined}
+                    />
                   </td>
                   <td className="px-4 py-3">
                     <OrderStatusSelect
                       orderId={String(order._id)}
                       value={order.status as OrderStatus}
+                      paymentStatus={order.paymentStatus as string | undefined}
                     />
                   </td>
                   <td className="px-4 py-3">

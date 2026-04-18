@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
 
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -26,7 +25,14 @@ export function PaiementRetourClient({ orderCode }: Props) {
     let n = 0;
 
     async function tick() {
-      const res = await fetch(`/api/orders/code/${encodeURIComponent(orderCode)}`);
+      await fetch(`/api/orders/code/${encodeURIComponent(orderCode)}/sync-payment`, {
+        method: "POST",
+        cache: "no-store",
+      });
+
+      const res = await fetch(`/api/orders/code/${encodeURIComponent(orderCode)}`, {
+        cache: "no-store",
+      });
       const data = (await res.json()) as { paymentStatus?: OrderPaymentStatus };
       if (cancelled) {
         return;
@@ -38,8 +44,9 @@ export function PaiementRetourClient({ orderCode }: Props) {
           cleared.current = true;
           clearCart();
         }
-        toast.success("Paiement confirme");
-        router.replace(`/commande/${orderCode}`);
+        window.setTimeout(() => {
+          router.replace(`/commande/${orderCode}`);
+        }, 0);
         return;
       }
       if (ps === "failed") {

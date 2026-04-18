@@ -2,6 +2,7 @@ export type DeliveryType = "livraison" | "retrait";
 
 export type OrderStatus =
   | "en_attente"
+  | "paye"
   | "en_preparation"
   | "pret"
   | "livre";
@@ -41,5 +42,7 @@ export interface OrderDto {
   orderCode: string;
   paymentStatus?: OrderPaymentStatus;
   fedapayTransactionId?: string;
+  fedapayReference?: string;
+  paidAt?: string;
   createdAt: string;
 }

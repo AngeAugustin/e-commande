@@ -70,8 +70,10 @@ export default function CheckoutPage() {
         return;
       }
 
-      toast.success("Redirection vers FedaPay");
-      window.location.assign(paymentUrl);
+      // Eviter toast + assign dans le meme tick (conflit possible avec le routeur App en dev).
+      window.setTimeout(() => {
+        window.location.assign(paymentUrl);
+      }, 0);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Erreur reseau";
       setSubmitError(msg);
@@ -86,9 +88,10 @@ export default function CheckoutPage() {
       <Card className="space-y-4">
         <h1 className="text-2xl font-black">Paiement</h1>
         <p className="text-sm text-zinc-600">
-          Paiement securise via FedaPay (Mobile Money ou carte). Apres validation, vous serez
-          redirige vers la page de paiement puis vers le suivi de commande une fois le paiement
-          accepte.
+          Paiement securise via FedaPay (Mobile Money ou carte). Le numero de telephone ci-dessous
+          sert au restaurant (contact / livraison) ; vous indiquerez le numero Mobile Money sur la
+          page FedaPay. Apres validation, redirection vers FedaPay puis suivi de commande une fois le
+          paiement accepte.
         </p>
 
         <form className="space-y-3" onSubmit={handleSubmit}>
@@ -100,7 +103,7 @@ export default function CheckoutPage() {
           />
           <Input
             required
-            placeholder="Telephone"
+            placeholder="Telephone (contact restaurant)"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />

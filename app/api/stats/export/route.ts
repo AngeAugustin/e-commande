@@ -39,7 +39,10 @@ export async function GET() {
     const totalOrders = orders.length;
     const totalSales = orders.reduce((acc, order) => acc + order.total, 0);
     const inProgressCount = orders.filter(
-      (order) => order.status === "en_attente" || order.status === "en_preparation",
+      (order) =>
+        order.status === "paye" ||
+        order.status === "en_attente" ||
+        order.status === "en_preparation",
     ).length;
 
     const doc = new PDFDocument({ margin: 40, size: "A4" });

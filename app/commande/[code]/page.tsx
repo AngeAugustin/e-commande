@@ -3,7 +3,12 @@ import Link from "next/link";
 
 import { CopyOrderCodeButton } from "@/components/commande/copy-order-code-button";
 import { Card } from "@/components/ui/card";
-import { ORDER_STATUS_LABELS, ORDER_STATUSES } from "@/lib/constants";
+import {
+  COMMANDE_TRACKING_LABELS,
+  COMMANDE_TRACKING_STEP_IDS,
+  getCommandeTrackingStepIndex,
+} from "@/lib/commande-tracking";
+import { isOrderPaid } from "@/lib/order-payment";
 import { connectToDatabase } from "@/lib/mongodb";
 import { formatPrice } from "@/lib/utils";
 import { Order } from "@/models/Order";
@@ -31,16 +36,27 @@ export default async function CommandePage({ params }: CommandePageProps) {
     redirect("/checkout");
   }
 
-  const currentStepIndex = ORDER_STATUSES.indexOf(order.status as OrderStatus);
   const currentStatus = order.status as OrderStatus;
+  const currentStepIndex = getCommandeTrackingStepIndex(currentStatus);
+  const showPaidBadge = isOrderPaid(order.paymentStatus as string | undefined);
 
   return (
     <section className="mx-auto max-w-2xl space-y-4">
       <Card className="space-y-3">
         <p className="text-sm text-zinc-500">Code commande</p>
         <div className="flex items-center justify-between gap-3">
-          <h1 className="text-2xl font-black">{order.orderCode}</h1>
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <h1 className="text-2xl font-black">{order.orderCode}</h1>
+            {showPaidBadge ? (
+              <span
+                className="inline-flex shrink-0 items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-800"
+                aria-label="Commande deja payee"
+              >
+                Payé
+              </span>
+            ) : null}
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
             <Link
               href={`/api/orders/code/${order.orderCode}/receipt`}
               target="_blank"
@@ -69,10 +85,10 @@ export default async function CommandePage({ params }: CommandePageProps) {
         <div className="space-y-2">
           <p className="text-sm font-semibold text-zinc-700">Suivi de la commande</p>
           <ol className="grid grid-cols-4 gap-2">
-            {ORDER_STATUSES.map((status, index) => {
+            {COMMANDE_TRACKING_STEP_IDS.map((stepId, index) => {
               const isPast = index < currentStepIndex;
               const isCurrent = index === currentStepIndex;
-              const isLivreNextWhenPret = currentStatus === "pret" && status === "livre";
+              const isLivreNextWhenPret = currentStatus === "pret" && stepId === "livre";
 
               const emerald =
                 "border-emerald-600 bg-emerald-50 text-emerald-700" as const;
@@ -85,7 +101,7 @@ export default async function CommandePage({ params }: CommandePageProps) {
               if (isLivreNextWhenPret) {
                 statusClass = orange;
                 textClass = "text-orange-700";
-              } else if (currentStatus === "pret" && isCurrent) {
+              } else if (currentStatus === "pret" && isCurrent && stepId === "pret") {
                 statusClass = emerald;
                 textClass = "text-emerald-700";
               } else if (currentStatus === "livre" && isCurrent) {
@@ -103,11 +119,11 @@ export default async function CommandePage({ params }: CommandePageProps) {
               }
 
               return (
-                <li key={status} className="flex flex-col items-center gap-1.5 text-center">
+                <li key={stepId} className="flex flex-col items-center gap-1.5 text-center">
                   <span
                     className={`inline-flex h-9 w-9 items-center justify-center rounded-full border ${statusClass}`}
                   >
-                    {status === "en_attente" ? (
+                    {stepId === "paye" ? (
                       <svg
                         aria-hidden="true"
                         viewBox="0 0 24 24"
@@ -119,10 +135,10 @@ export default async function CommandePage({ params }: CommandePageProps) {
                         strokeLinejoin="round"
                       >
                         <circle cx="12" cy="12" r="8" />
-                        <path d="M12 8v4l3 2" />
+                        <path d="m8.8 12.3 2.2 2.3 4.2-4.6" />
                       </svg>
                     ) : null}
-                    {status === "en_preparation" ? (
+                    {stepId === "en_preparation" ? (
                       <svg
                         aria-hidden="true"
                         viewBox="0 0 24 24"
@@ -138,7 +154,7 @@ export default async function CommandePage({ params }: CommandePageProps) {
                         <path d="M12 4.8c1.4 1 2.2 2.2 2.2 3.6A2.2 2.2 0 0 1 12 10.6a2.2 2.2 0 0 1-2.2-2.2c0-1.4.8-2.6 2.2-3.6Z" />
                       </svg>
                     ) : null}
-                    {status === "pret" ? (
+                    {stepId === "pret" ? (
                       <svg
                         aria-hidden="true"
                         viewBox="0 0 24 24"
@@ -153,7 +169,7 @@ export default async function CommandePage({ params }: CommandePageProps) {
                         <path d="m8.8 12.3 2.2 2.3 4.2-4.6" />
                       </svg>
                     ) : null}
-                    {status === "livre" ? (
+                    {stepId === "livre" ? (
                       <svg
                         aria-hidden="true"
                         viewBox="0 0 24 24"
@@ -175,7 +191,7 @@ export default async function CommandePage({ params }: CommandePageProps) {
                     ) : null}
                   </span>
                   <span className={`text-xs font-semibold sm:text-sm ${textClass}`}>
-                    {ORDER_STATUS_LABELS[status]}
+                    {COMMANDE_TRACKING_LABELS[stepId]}
                   </span>
                 </li>
               );

@@ -10,9 +10,11 @@ import type { OrderStatus } from "@/types";
 type OrderStatusSelectProps = {
   orderId: string;
   value: OrderStatus;
+  /** Permet de ne pas proposer la cuisine tant que le paiement est en attente (statut `en_attente`). */
+  paymentStatus?: string | null;
 };
 
-export function OrderStatusSelect({ orderId, value }: OrderStatusSelectProps) {
+export function OrderStatusSelect({ orderId, value, paymentStatus }: OrderStatusSelectProps) {
   const router = useRouter();
   const [status, setStatus] = useState(value);
   const [loading, setLoading] = useState(false);
@@ -38,7 +40,15 @@ export function OrderStatusSelect({ orderId, value }: OrderStatusSelectProps) {
     router.refresh();
   }
 
-  if (status === "en_attente") {
+  if (status === "en_attente" && paymentStatus === "pending") {
+    return (
+      <span className="inline-flex rounded-full bg-zinc-100 px-2 py-1 text-xs font-semibold text-zinc-600">
+        Paiement en attente
+      </span>
+    );
+  }
+
+  if (status === "paye" || status === "en_attente") {
     return (
       <Button
         variant="ghost"

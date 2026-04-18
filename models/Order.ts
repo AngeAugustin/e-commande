@@ -17,7 +17,7 @@ const orderSchema = new Schema(
     total: { type: Number, required: true, min: 0 },
     status: {
       type: String,
-      enum: ["en_attente", "en_preparation", "pret", "livre"],
+      enum: ["en_attente", "paye", "en_preparation", "pret", "livre"],
       default: "en_attente",
     },
     deliveryType: { type: String, enum: ["livraison", "retrait"], required: true },
@@ -32,6 +32,10 @@ const orderSchema = new Schema(
       enum: ["pending", "paid", "failed"],
     },
     fedapayTransactionId: { type: String, default: "" },
+    /** Référence métier FedaPay (ex. ref transaction), renseignée au paiement confirmé */
+    fedapayReference: { type: String, default: "" },
+    /** Date à laquelle le paiement a été confirmé (webhook ou sync après retour) */
+    paidAt: { type: Date },
   },
   { timestamps: true },
 );

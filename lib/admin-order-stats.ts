@@ -104,7 +104,10 @@ export function aggregateTotalVentes(): Promise<Array<VentesAggRow>> {
 export function countInProgressOrders() {
   const inList = "$" + "in";
   return Order.countDocuments({
-    $and: [{ status: { [inList]: ["en_attente", "en_preparation"] } }, paidOrdersFilter()],
+    $and: [
+      { status: { [inList]: ["paye", "en_attente", "en_preparation"] } },
+      paidOrdersFilter(),
+    ],
   });
 }
 

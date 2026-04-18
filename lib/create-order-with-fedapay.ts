@@ -3,10 +3,8 @@ import { NextResponse } from "next/server";
 import {
   configureFedaPay,
   extractPaymentUrlFromTokenResult,
-  getFedapayPhoneCountry,
-  getResolvedFedapayMode,
   getPublicAppUrl,
-  parseFedapayPhoneNumber,
+  getResolvedFedapayMode,
   splitCustomerName,
   Transaction,
 } from "@/lib/fedapay-server";
@@ -75,8 +73,6 @@ export async function createOrderWithFedaPayCheckout(request: Request): Promise<
     let paymentUrl: string;
     try {
       configureFedaPay();
-      const country = getFedapayPhoneCountry();
-      const phone = parseFedapayPhoneNumber(orderPayload.customerInfo.phone, country);
       const { firstname, lastname } = splitCustomerName(orderPayload.customerInfo.name);
       const mode = getResolvedFedapayMode();
 
@@ -89,7 +85,6 @@ export async function createOrderWithFedaPayCheckout(request: Request): Promise<
         customer: {
           firstname,
           lastname,
-          phone_number: { number: phone.number, country: phone.country },
         },
       };
       if (mode) {

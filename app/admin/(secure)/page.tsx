@@ -72,6 +72,7 @@ export default async function AdminDashboardPage() {
 
   const statusCounts = new Map<OrderStatus, number>([
     ["en_attente", 0],
+    ["paye", 0],
     ["en_preparation", 0],
     ["pret", 0],
     ["livre", 0],

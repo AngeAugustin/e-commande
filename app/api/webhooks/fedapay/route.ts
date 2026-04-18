@@ -3,6 +3,11 @@ import { Webhook } from "fedapay";
 
 import { connectToDatabase } from "@/lib/mongodb";
 import { Order } from "@/models/Order";
+import type { OrderStatus } from "@/types";
+
+function kitchenWorkflowStarted(status: string) {
+  return (["en_preparation", "pret", "livre"] as OrderStatus[]).includes(status as OrderStatus);
+}
 
 export const runtime = "nodejs";
 
@@ -113,7 +118,24 @@ export async function POST(request: Request) {
         ? { fedapayTransactionId: fedapayId }
         : null;
     if (filter) {
-      await Order.updateOne(filter, { $set: { paymentStatus: "paid" } });
+      const ord = await Order.findOne(filter);
+      if (ord) {
+        const ref =
+          tx && typeof tx.reference === "string" && tx.reference.trim()
+            ? tx.reference.trim()
+            : "";
+        const $set: Record<string, unknown> = {
+          paymentStatus: "paid",
+          paidAt: new Date(),
+        };
+        if (ref) {
+          $set.fedapayReference = ref;
+        }
+        if (!kitchenWorkflowStarted(String(ord.status))) {
+          $set.status = "paye";
+        }
+        await Order.updateOne({ _id: ord._id }, { $set });
+      }
     }
     return NextResponse.json({ received: true });
   }
