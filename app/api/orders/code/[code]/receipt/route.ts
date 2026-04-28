@@ -89,7 +89,7 @@ export async function GET(_: Request, { params }: RouteParams) {
       drawLine(`Adresse  : ${order.customerInfo.address}`, 8, false);
     }
     drawLine(
-      `Type     : ${order.deliveryType === "livraison" ? "Livraison" : "Retrait"}`,
+      `Type     : ${order.deliveryType === "livraison" ? "Livraison" : "Retrait sur place"}`,
       8,
       false,
     );

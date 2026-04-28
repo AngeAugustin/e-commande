@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  Bar,
-  BarChart,
   CartesianGrid,
   Cell,
   Line,
@@ -38,8 +36,6 @@ type DashboardAnalyticsProps = {
     retrait: number;
   }>;
   statusDistribution: Array<{ name: string; value: number }>;
-  deliveryDistribution: Array<{ name: string; value: number }>;
-  topProducts: Array<{ name: string; quantity: number }>;
   recentOrders: Array<{
     orderCode: string;
     customerName: string;
@@ -69,8 +65,6 @@ export function DashboardAnalytics({
   metrics,
   salesEvolution,
   statusDistribution,
-  deliveryDistribution,
-  topProducts,
   recentOrders,
 }: DashboardAnalyticsProps) {
   return (
@@ -122,7 +116,7 @@ export function DashboardAnalytics({
                 className="h-0.5 w-9 shrink-0 rounded-full"
                 style={{ backgroundColor: CHART_ORANGE }}
               />
-              Retrait
+              Retrait sur place
             </span>
           </div>
         </div>
@@ -169,7 +163,7 @@ export function DashboardAnalytics({
                       ? "Total"
                       : name === "livraison"
                         ? "Livraison"
-                        : "Retrait";
+                        : "Retrait sur place";
                   return [formatPrice(value), label];
                 }}
                 labelStyle={{ color: "#71717a", fontWeight: 600, marginBottom: 4 }}
@@ -223,48 +217,6 @@ export function DashboardAnalytics({
                 paddingAngle={3}
               >
                 {statusDistribution.map((entry, index) => (
-                  <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
-
-      <Card className="xl:col-span-6">
-        <div className="mb-3">
-          <h2 className="text-lg font-black">Top plats</h2>
-          <p className="text-xs text-zinc-500">Les produits les plus demandes.</p>
-        </div>
-        <div className="h-72">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={topProducts}>
-              <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-20} height={55} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip />
-              <Bar dataKey="quantity" fill="#111111" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
-
-      <Card className="xl:col-span-6">
-        <div className="mb-3">
-          <h2 className="text-lg font-black">Livraison vs retrait</h2>
-          <p className="text-xs text-zinc-500">Analyse des preferences clients.</p>
-        </div>
-        <div className="h-72">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={deliveryDistribution}
-                dataKey="value"
-                nameKey="name"
-                innerRadius={45}
-                outerRadius={85}
-              >
-                {deliveryDistribution.map((entry, index) => (
                   <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>

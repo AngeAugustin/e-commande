@@ -4,9 +4,7 @@ import { DashboardAnalytics } from "@/components/admin/dashboard-analytics";
 import {
   aggregateMonthlySalesLast12,
   aggregateOrderMetrics,
-  aggregateOrdersByDelivery,
   aggregateOrdersByStatus,
-  aggregateTopProducts,
   countInProgressOrders,
 } from "@/lib/admin-order-stats";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
@@ -36,8 +34,6 @@ export default async function AdminDashboardPage() {
     inProgressOrders,
     monthlyByMonth,
     statusAgg,
-    deliveryAgg,
-    topProductsAgg,
     recentOrders,
   ] = await Promise.all([
     Product.countDocuments(),
@@ -45,8 +41,6 @@ export default async function AdminDashboardPage() {
     countInProgressOrders(),
     aggregateMonthlySalesLast12(),
     aggregateOrdersByStatus(),
-    aggregateOrdersByDelivery(),
-    aggregateTopProducts(),
     Order.find()
       .sort({ createdAt: -1 })
       .limit(10)
@@ -87,25 +81,6 @@ export default async function AdminDashboardPage() {
     value,
   }));
 
-  const deliveryMap = new Map<string, number>([
-    ["livraison", 0],
-    ["retrait", 0],
-  ]);
-  for (const row of deliveryAgg) {
-    if (row._id) {
-      deliveryMap.set(row._id, row.value);
-    }
-  }
-  const deliveryDistribution = Array.from(deliveryMap.entries()).map(([name, value]) => ({
-    name: name === "livraison" ? "Livraison" : "Retrait",
-    value,
-  }));
-
-  const topProducts = topProductsAgg.map((row) => ({
-    name: row._id,
-    quantity: row.quantity,
-  }));
-
   const recentOrdersRows = recentOrders.map((order) => ({
     orderCode: order.orderCode,
     customerName: order.customerInfo.name,
@@ -141,8 +116,6 @@ export default async function AdminDashboardPage() {
         }}
         salesEvolution={salesEvolution}
         statusDistribution={statusDistribution}
-        deliveryDistribution={deliveryDistribution}
-        topProducts={topProducts}
         recentOrders={recentOrdersRows}
       />
     </section>

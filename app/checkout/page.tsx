@@ -123,7 +123,7 @@ export default function CheckoutPage() {
                 setAddress("");
               }}
             >
-              Retrait
+              Retrait sur place
             </Button>
           </div>
           {deliveryType === "livraison" ? (

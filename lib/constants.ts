@@ -18,5 +18,5 @@ export const ORDER_STATUSES: OrderStatus[] = [
 
 export const DELIVERY_TYPES = [
   { value: "livraison", label: "Livraison" },
-  { value: "retrait", label: "Retrait" },
+  { value: "retrait", label: "Retrait sur place" },
 ] as const;

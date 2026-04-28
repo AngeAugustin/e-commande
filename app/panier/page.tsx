@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -29,9 +30,14 @@ export default function PanierPage() {
 
         {items.map((item) => (
           <Card key={item.productId} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="font-semibold">{item.name}</p>
-              <p className="text-sm text-zinc-500">{formatPrice(item.price)}</p>
+            <div className="flex items-center gap-3">
+              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-zinc-100 bg-zinc-50">
+                <Image src={item.image} alt={item.name} fill className="object-cover" />
+              </div>
+              <div>
+                <p className="font-semibold">{item.name}</p>
+                <p className="text-sm text-zinc-500">{formatPrice(item.price)}</p>
+              </div>
             </div>
 
             <div className="flex items-center gap-2">
