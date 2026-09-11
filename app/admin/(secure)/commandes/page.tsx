@@ -3,6 +3,7 @@ import Link from "next/link";
 import { OrderReceiptButton } from "@/components/admin/order-receipt-button";
 import { OrderStatusBadge } from "@/components/admin/order-status-badge";
 import { OrderStatusSelect } from "@/components/admin/order-status-select";
+import { TablePagination } from "@/components/admin/table-pagination";
 import { Card } from "@/components/ui/card";
 import {
   aggregateTotalVentes,
@@ -16,7 +17,7 @@ import type { DeliveryType, OrderStatus } from "@/types";
 
 export const dynamic = "force-dynamic";
 
-const PAGE_SIZE = 25;
+const PAGE_SIZE = 10;
 
 type AdminCommandesPageProps = {
   searchParams: Promise<{ page?: string }>;
@@ -51,14 +52,14 @@ export default async function AdminCommandesPage({ searchParams }: AdminCommande
     <section className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-3xl font-black">Commandes</h1>
-          <p className="text-sm text-zinc-500">
+          <h1 className="text-3xl font-bold text-palm">Commandes</h1>
+          <p className="text-sm text-ink-muted">
             Suivez toutes les commandes et mettez a jour les statuts en temps reel.
           </p>
         </div>
         <Link
           href="/admin/commandes"
-          className="inline-flex items-center justify-center rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-zinc-800"
+          className="inline-flex items-center justify-center rounded-xl bg-chili px-4 py-2 text-sm font-semibold text-white transition hover:bg-chili-hover"
         >
           Actualiser
         </Link>
@@ -66,27 +67,27 @@ export default async function AdminCommandesPage({ searchParams }: AdminCommande
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <Card>
-          <p className="text-sm text-zinc-500">Total commandes</p>
-          <p className="mt-1 text-2xl font-black">{totalCount}</p>
+          <p className="text-sm text-ink-muted">Total commandes</p>
+          <p className="mt-1 text-2xl font-bold text-palm">{totalCount}</p>
         </Card>
         <Card>
-          <p className="text-sm text-zinc-500">Ventes cumulees</p>
-          <p className="mt-1 text-2xl font-black">{formatPrice(totalVentes)}</p>
+          <p className="text-sm text-ink-muted">Ventes cumulees</p>
+          <p className="mt-1 text-2xl font-bold text-palm">{formatPrice(totalVentes)}</p>
         </Card>
         <Card>
-          <p className="text-sm text-zinc-500">Commandes en cours</p>
-          <p className="mt-1 text-2xl font-black">{enCours}</p>
+          <p className="text-sm text-ink-muted">Commandes en cours</p>
+          <p className="mt-1 text-2xl font-bold text-palm">{enCours}</p>
         </Card>
         <Card>
-          <p className="text-sm text-zinc-500">Commandes pretes</p>
-          <p className="mt-1 text-2xl font-black">{terminees}</p>
+          <p className="text-sm text-ink-muted">Commandes pretes</p>
+          <p className="mt-1 text-2xl font-bold text-palm">{terminees}</p>
         </Card>
       </div>
 
       <Card className="overflow-hidden p-0">
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-zinc-50 text-left text-zinc-600">
+            <thead className="bg-surface-muted text-left text-ink-muted">
               <tr>
                 <th className="px-4 py-3 font-semibold">Code</th>
                 <th className="px-4 py-3 font-semibold">Client</th>
@@ -100,14 +101,14 @@ export default async function AdminCommandesPage({ searchParams }: AdminCommande
             </thead>
             <tbody>
               {ordersPage.map((order) => (
-                <tr key={String(order._id)} className="border-t border-zinc-100">
+                <tr key={String(order._id)} className="border-t border-border/60">
                   <td className="px-4 py-3 font-semibold">{order.orderCode}</td>
                   <td className="px-4 py-3">
                     <p>{order.customerInfo.name}</p>
-                    <p className="text-xs text-zinc-500">{order.customerInfo.phone}</p>
+                    <p className="text-xs text-ink-muted">{order.customerInfo.phone}</p>
                   </td>
                   <td className="px-4 py-3 capitalize">{order.deliveryType}</td>
-                  <td className="px-4 py-3 text-xs text-zinc-600">
+                  <td className="px-4 py-3 text-xs text-ink-muted">
                     {order.deliveryType === "livraison"
                       ? order.customerInfo.address || "Adresse non renseignee"
                       : "Retrait sur place"}
@@ -155,38 +156,14 @@ export default async function AdminCommandesPage({ searchParams }: AdminCommande
             </tbody>
           </table>
         </div>
-        {totalPages > 1 ? (
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-zinc-100 px-4 py-3 text-sm text-zinc-600">
-            <p>
-              Page {safePage} sur {totalPages} ({totalCount} commandes)
-            </p>
-            <div className="flex gap-2">
-              {safePage > 1 ? (
-                <Link
-                  href={`/admin/commandes?page=${safePage - 1}`}
-                  className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 font-semibold text-black transition hover:border-zinc-400"
-                >
-                  Precedente
-                </Link>
-              ) : (
-                <span className="rounded-lg border border-transparent px-3 py-1.5 text-zinc-400">
-                  Precedente
-                </span>
-              )}
-              {safePage < totalPages ? (
-                <Link
-                  href={`/admin/commandes?page=${safePage + 1}`}
-                  className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 font-semibold text-black transition hover:border-zinc-400"
-                >
-                  Suivante
-                </Link>
-              ) : (
-                <span className="rounded-lg border border-transparent px-3 py-1.5 text-zinc-400">
-                  Suivante
-                </span>
-              )}
-            </div>
-          </div>
+        {totalCount > 0 ? (
+          <TablePagination
+            page={safePage}
+            totalPages={totalPages}
+            totalItems={totalCount}
+            itemLabel="commandes"
+            hrefForPage={(p) => `/admin/commandes?page=${p}`}
+          />
         ) : null}
       </Card>
     </section>

@@ -56,10 +56,10 @@ export function OrderStatusSelect({ orderId, value, paymentStatus }: OrderStatus
   }
 
   const confirmModal = pendingAction ? (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-palm-deep/45 p-4">
       <Card className="w-full max-w-md">
-        <h3 className="text-xl font-black">{pendingAction.title}</h3>
-        <p className="mt-2 text-sm text-zinc-600">{pendingAction.message}</p>
+        <h3 className="text-xl font-bold text-palm">{pendingAction.title}</h3>
+        <p className="mt-2 text-sm text-ink-muted">{pendingAction.message}</p>
         <div className="mt-5 flex justify-end gap-2">
           <Button
             variant="secondary"

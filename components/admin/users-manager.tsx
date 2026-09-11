@@ -115,8 +115,8 @@ export function UsersManager({
     <section className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-3xl font-black">Utilisateurs</h1>
-          <p className="text-sm text-zinc-500">
+          <h1 className="text-3xl font-bold text-palm">Utilisateurs</h1>
+          <p className="text-sm text-ink-muted">
             Creez et suivez les comptes admin du restaurant.
           </p>
         </div>
@@ -134,8 +134,8 @@ export function UsersManager({
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
           <Card key={stat.label}>
-            <p className="text-sm text-zinc-500">{stat.label}</p>
-            <p className="mt-1 text-2xl font-black">{stat.value}</p>
+            <p className="text-sm text-ink-muted">{stat.label}</p>
+            <p className="mt-1 text-2xl font-bold text-palm">{stat.value}</p>
           </Card>
         ))}
       </div>
@@ -143,7 +143,7 @@ export function UsersManager({
       <Card className="overflow-hidden p-0">
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-zinc-50 text-left text-zinc-600">
+            <thead className="bg-surface-muted text-left text-ink-muted">
               <tr>
                 <th className="px-4 py-3 font-semibold">Nom complet</th>
                 <th className="px-4 py-3 font-semibold">Email</th>
@@ -154,14 +154,14 @@ export function UsersManager({
             </thead>
             <tbody>
               {users.map((user) => (
-                <tr key={user._id} className="border-t border-zinc-100">
+                <tr key={user._id} className="border-t border-border/60">
                   <td className="px-4 py-3">
                     {[user.firstName || "", user.lastName || ""].join(" ").trim() ||
                       "Non renseigne"}
                   </td>
                   <td className="px-4 py-3">{user.email}</td>
                   <td className="px-4 py-3">
-                    <span className="rounded-full bg-zinc-100 px-2 py-1 text-xs font-semibold uppercase text-zinc-700">
+                    <span className="rounded-full bg-surface-muted px-2 py-1 text-xs font-semibold uppercase text-foreground">
                       {user.role}
                     </span>
                   </td>
@@ -174,7 +174,7 @@ export function UsersManager({
                     <div className="flex items-center gap-3">
                       <button
                         type="button"
-                        className="text-zinc-700 transition hover:text-black"
+                        className="text-foreground transition hover:text-palm"
                         title="Modifier l utilisateur"
                         aria-label="Modifier l utilisateur"
                         onClick={() => {
@@ -227,7 +227,7 @@ export function UsersManager({
                           </svg>
                         </button>
                       ) : (
-                        <span className="text-xs font-semibold text-zinc-400">Vous</span>
+                        <span className="text-xs font-semibold text-ink-muted/60">Vous</span>
                       )}
                     </div>
                   </td>
@@ -239,12 +239,12 @@ export function UsersManager({
       </Card>
 
       {openModal ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-palm-deep/40 p-4">
           <Card className="w-full max-w-xl">
-            <h2 className="text-xl font-black">
+            <h2 className="text-xl font-bold text-palm">
               {editingId ? "Modifier un utilisateur" : "Creer un utilisateur"}
             </h2>
-            <p className="mb-4 text-sm text-zinc-500">
+            <p className="mb-4 text-sm text-ink-muted">
               {editingId
                 ? "Mettez a jour les informations de cet administrateur."
                 : "Renseignez les informations et un mot de passe fort (min 10 caracteres)."}
@@ -313,12 +313,12 @@ export function UsersManager({
       ) : null}
 
       {deleteTarget ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-palm-deep/45 p-4">
           <Card className="w-full max-w-md">
-            <h3 className="text-xl font-black">Confirmer la suppression</h3>
-            <p className="mt-2 text-sm text-zinc-600">
+            <h3 className="text-xl font-bold text-palm">Confirmer la suppression</h3>
+            <p className="mt-2 text-sm text-ink-muted">
               Voulez-vous vraiment supprimer l utilisateur{" "}
-              <span className="font-semibold text-black">{deleteTarget.email}</span> ?
+              <span className="font-semibold text-palm">{deleteTarget.email}</span> ?
               Cette action est irreversible.
             </p>
             <div className="mt-5 flex justify-end gap-2">

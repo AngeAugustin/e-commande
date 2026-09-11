@@ -28,14 +28,14 @@ export default async function SecureAdminLayout({
   const adminLastName = user.lastName ?? "";
 
   return (
-    <div className="flex min-h-screen flex-col lg:flex-row">
+    <div className="flex h-dvh flex-col overflow-hidden bg-background lg:flex-row">
       <AdminSidebar
         adminEmail={adminEmail}
         adminRole={adminRole}
         adminFirstName={adminFirstName}
         adminLastName={adminLastName}
       />
-      <div className="flex-1 p-4 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:p-8">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:p-8">
         {children}
       </div>
     </div>

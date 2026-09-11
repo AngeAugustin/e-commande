@@ -21,7 +21,7 @@ export function OrderReceiptButton({ order }: OrderReceiptButtonProps) {
   if (!paid) {
     return (
       <span
-        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-100 text-zinc-300"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/60 text-mist"
         title="Recu disponible apres confirmation du paiement"
         aria-label="Recu indisponible"
       >
@@ -50,7 +50,7 @@ export function OrderReceiptButton({ order }: OrderReceiptButtonProps) {
         onClick={() => setOpen(true)}
         title="Voir le recu"
         aria-label={`Voir le recu de la commande ${order.orderCode}`}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700 transition hover:border-zinc-400 hover:text-black"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-foreground transition hover:border-palm/40 hover:text-palm"
       >
         <svg
           aria-hidden="true"
@@ -69,10 +69,10 @@ export function OrderReceiptButton({ order }: OrderReceiptButtonProps) {
       </button>
 
       {open ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-palm-deep/45 p-4">
           <Card className="max-h-[90vh] w-full max-w-md overflow-y-auto">
             <div className="mb-3 flex items-center justify-between gap-2">
-              <h3 className="text-lg font-black">Recu</h3>
+              <h3 className="text-lg font-bold text-palm">Recu</h3>
               <Button variant="secondary" onClick={() => setOpen(false)}>
                 Fermer
               </Button>

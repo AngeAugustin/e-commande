@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { TablePagination } from "@/components/admin/table-pagination";
 import { formatPrice } from "@/lib/utils";
 import type { ProductDto } from "@/types";
 
@@ -28,6 +29,7 @@ const categoryOptions = [
   "Desserts",
 ];
 const OTHER_CATEGORY_VALUE = "__autres__";
+const PAGE_SIZE = 10;
 
 export function ProductsManager({
   initialProducts,
@@ -45,11 +47,13 @@ export function ProductsManager({
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ProductDto | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [page, setPage] = useState(1);
 
   async function loadProducts() {
     const res = await fetch("/api/products");
     const data = await res.json();
     setProducts(data);
+    setPage(1);
   }
 
   async function submitForm(e: React.FormEvent<HTMLFormElement>) {
@@ -140,12 +144,19 @@ export function ProductsManager({
     ];
   }, [products]);
 
+  const totalPages = Math.max(1, Math.ceil(products.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const paginatedProducts = useMemo(() => {
+    const start = (safePage - 1) * PAGE_SIZE;
+    return products.slice(start, start + PAGE_SIZE);
+  }, [products, safePage]);
+
   return (
     <section className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-3xl font-black">Gestion du menu</h1>
-          <p className="text-sm text-zinc-500">
+          <h1 className="text-3xl font-bold text-palm">Gestion du menu</h1>
+          <p className="text-sm text-ink-muted">
             Gere les plats, les prix et la disponibilite de votre restaurant.
           </p>
         </div>
@@ -167,8 +178,8 @@ export function ProductsManager({
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
           <Card key={stat.label}>
-            <p className="text-sm text-zinc-500">{stat.label}</p>
-            <p className="mt-1 text-2xl font-black">{stat.value}</p>
+            <p className="text-sm text-ink-muted">{stat.label}</p>
+            <p className="mt-1 text-2xl font-bold text-palm">{stat.value}</p>
           </Card>
         ))}
       </div>
@@ -176,7 +187,7 @@ export function ProductsManager({
       <Card className="overflow-hidden p-0">
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-zinc-50 text-left text-zinc-600">
+            <thead className="bg-surface-muted text-left text-ink-muted">
               <tr>
                 <th className="px-4 py-3 font-semibold">Produit</th>
                 <th className="px-4 py-3 font-semibold">Categorie</th>
@@ -186,8 +197,8 @@ export function ProductsManager({
               </tr>
             </thead>
             <tbody>
-              {products.map((product) => (
-                <tr key={product._id} className="border-t border-zinc-100">
+              {paginatedProducts.map((product) => (
+                <tr key={product._id} className="border-t border-border/60">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <Image
@@ -199,7 +210,7 @@ export function ProductsManager({
                       />
                       <div>
                         <p className="font-semibold">{product.name}</p>
-                        <p className="text-xs text-zinc-500">{product.description}</p>
+                        <p className="text-xs text-ink-muted">{product.description}</p>
                       </div>
                     </div>
                   </td>
@@ -220,7 +231,7 @@ export function ProductsManager({
                     <div className="flex items-center gap-3">
                       <button
                         type="button"
-                        className="text-zinc-700 transition hover:text-black"
+                        className="text-foreground transition hover:text-palm"
                         title="Editer le produit"
                         aria-label="Editer le produit"
                         onClick={() => {
@@ -286,15 +297,24 @@ export function ProductsManager({
             </tbody>
           </table>
         </div>
+        {products.length > 0 ? (
+          <TablePagination
+            page={safePage}
+            totalPages={totalPages}
+            totalItems={products.length}
+            itemLabel="produits"
+            onPageChange={setPage}
+          />
+        ) : null}
       </Card>
 
       {openModal ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-palm-deep/40 p-4">
           <Card className="w-full max-w-2xl">
-            <h2 className="text-xl font-black">
+            <h2 className="text-xl font-bold text-palm">
               {editingId ? "Modifier le produit" : "Ajouter un produit"}
             </h2>
-            <p className="mb-4 text-sm text-zinc-500">
+            <p className="mb-4 text-sm text-ink-muted">
               Renseignez les informations du plat pour le menu client.
             </p>
 
@@ -317,7 +337,7 @@ export function ProductsManager({
                   }
                   setForm((prev) => ({ ...prev, category: value }));
                 }}
-                className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm outline-none transition focus:border-zinc-900"
+                className="h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm outline-none transition focus:border-palm focus:ring-2 focus:ring-palm/20"
               >
                 <option value="" disabled>
                   Selectionner une categorie
@@ -360,13 +380,13 @@ export function ProductsManager({
                 }
               />
               <div className="space-y-2 sm:col-span-2">
-                <label className="text-sm font-medium text-zinc-700">
+                <label className="text-sm font-medium text-foreground">
                   Photo du produit
                 </label>
                 <input
                   type="file"
                   accept="image/png,image/jpeg,image/webp"
-                  className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm"
+                  className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm"
                   onChange={(e) => {
                     const file = e.target.files?.[0] || null;
                     setSelectedImageFile(file);
@@ -378,9 +398,9 @@ export function ProductsManager({
                     }
                   }}
                 />
-                <p className="text-xs text-zinc-500">Formats: JPG, PNG, WEBP (max 5MB)</p>
+                <p className="text-xs text-ink-muted">Formats: JPG, PNG, WEBP (max 5MB)</p>
               </div>
-              <div className="flex items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 p-2 sm:col-span-2">
+              <div className="flex items-center justify-center rounded-xl border border-border bg-surface-muted p-2 sm:col-span-2">
                 {imagePreviewUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -389,7 +409,7 @@ export function ProductsManager({
                     className="h-24 w-24 rounded-lg object-cover"
                   />
                 ) : (
-                  <p className="text-xs text-zinc-500">Apercu image</p>
+                  <p className="text-xs text-ink-muted">Apercu image</p>
                 )}
               </div>
               <div className="flex gap-2 sm:col-span-2 sm:justify-end">
@@ -418,12 +438,12 @@ export function ProductsManager({
       ) : null}
 
       {deleteTarget ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-palm-deep/45 p-4">
           <Card className="w-full max-w-md">
-            <h3 className="text-xl font-black">Confirmer la suppression</h3>
-            <p className="mt-2 text-sm text-zinc-600">
+            <h3 className="text-xl font-bold text-palm">Confirmer la suppression</h3>
+            <p className="mt-2 text-sm text-ink-muted">
               Voulez-vous vraiment supprimer le produit{" "}
-              <span className="font-semibold text-black">{deleteTarget.name}</span> ?
+              <span className="font-semibold text-palm">{deleteTarget.name}</span> ?
               Cette action est irreversible.
             </p>
             <div className="mt-5 flex justify-end gap-2">

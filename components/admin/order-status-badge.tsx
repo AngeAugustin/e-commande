@@ -9,17 +9,17 @@ type OrderStatusBadgeProps = {
 
 function badgeClass(status: OrderStatus, paymentStatus?: string | null) {
   if (status === "en_attente" && paymentStatus === "pending") {
-    return "border-orange-200 bg-orange-50 text-orange-800";
+    return "border-chili/25 bg-chili/10 text-chili";
   }
   switch (status) {
     case "en_attente":
-      return "border-zinc-200 bg-zinc-100 text-zinc-800";
+      return "border-border bg-surface-muted text-ink-muted";
     case "paye":
-      return "border-emerald-200 bg-emerald-50 text-emerald-800";
+      return "border-palm/25 bg-palm/10 text-palm";
     case "pret":
-      return "border-green-200 bg-green-50 text-green-800";
+      return "border-palm-soft/30 bg-palm-soft/15 text-palm-deep";
     default:
-      return "border-zinc-200 bg-zinc-50 text-zinc-700";
+      return "border-border bg-surface-muted text-foreground";
   }
 }
 

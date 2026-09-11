@@ -16,9 +16,9 @@ import {
 import { Card } from "@/components/ui/card";
 import { formatPrice } from "@/lib/utils";
 
-const CHART_GREEN = "#22c55e";
-const CHART_INDIGO = "#6366f1";
-const CHART_ORANGE = "#f97316";
+const CHART_GREEN = "#0a3d2e";
+const CHART_INDIGO = "#1a6b52";
+const CHART_ORANGE = "#e0451a";
 const CHART_GRID = "#f4f4f5";
 const CHART_AXIS = "#a1a1aa";
 
@@ -36,16 +36,9 @@ type DashboardAnalyticsProps = {
     retrait: number;
   }>;
   statusDistribution: Array<{ name: string; value: number }>;
-  recentOrders: Array<{
-    orderCode: string;
-    customerName: string;
-    deliveryType: string;
-    statusLabel: string;
-    total: number;
-  }>;
 };
 
-const COLORS = ["#111111", "#3f3f46", "#71717a", "#a1a1aa", "#d4d4d8"];
+const COLORS = ["#0a3d2e", "#e0451a", "#d4a017", "#1a6b52", "#c5ddd3"];
 
 function formatAxisEuro(value: number) {
   if (!Number.isFinite(value) || value === 0) return "0";
@@ -65,38 +58,37 @@ export function DashboardAnalytics({
   metrics,
   salesEvolution,
   statusDistribution,
-  recentOrders,
 }: DashboardAnalyticsProps) {
   return (
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
       <Card className="xl:col-span-3">
-        <p className="text-sm text-zinc-500">Ventes totales</p>
-        <p className="mt-1 text-2xl font-black">{formatPrice(metrics.totalSales)}</p>
+        <p className="text-sm text-ink-muted">Ventes totales</p>
+        <p className="mt-1 text-2xl font-bold text-palm">{formatPrice(metrics.totalSales)}</p>
       </Card>
       <Card className="xl:col-span-3">
-        <p className="text-sm text-zinc-500">Total commandes</p>
-        <p className="mt-1 text-2xl font-black">{metrics.totalOrders}</p>
+        <p className="text-sm text-ink-muted">Total commandes</p>
+        <p className="mt-1 text-2xl font-bold text-palm">{metrics.totalOrders}</p>
       </Card>
       <Card className="xl:col-span-3">
-        <p className="text-sm text-zinc-500">Commandes en cours</p>
-        <p className="mt-1 text-2xl font-black">{metrics.inProgressOrders}</p>
+        <p className="text-sm text-ink-muted">Commandes en cours</p>
+        <p className="mt-1 text-2xl font-bold text-palm">{metrics.inProgressOrders}</p>
       </Card>
       <Card className="xl:col-span-3">
-        <p className="text-sm text-zinc-500">Produits actifs</p>
-        <p className="mt-1 text-2xl font-black">{metrics.activeProducts}</p>
+        <p className="text-sm text-ink-muted">Produits actifs</p>
+        <p className="mt-1 text-2xl font-bold text-palm">{metrics.activeProducts}</p>
       </Card>
 
-      <Card className="xl:col-span-8 border-zinc-200/90 bg-white p-5 sm:p-6">
+      <Card className="xl:col-span-8 border-border bg-surface p-5 sm:p-6">
         <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h2 className="text-lg font-black tracking-tight text-zinc-900">
+            <h2 className="text-lg font-bold text-palm tracking-tight text-palm">
               Evolution des ventes
             </h2>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-ink-muted">
               Chiffre d affaires sur 12 mois : total, livraison et retrait.
             </p>
           </div>
-          <div className="flex flex-wrap gap-x-5 gap-y-2 text-[11px] font-medium text-zinc-500">
+          <div className="flex flex-wrap gap-x-5 gap-y-2 text-[11px] font-medium text-ink-muted">
             <span className="inline-flex items-center gap-2">
               <span
                 className="h-0.5 w-9 shrink-0 rounded-full"
@@ -202,8 +194,8 @@ export function DashboardAnalytics({
 
       <Card className="xl:col-span-4">
         <div className="mb-3">
-          <h2 className="text-lg font-black">Repartition des statuts</h2>
-          <p className="text-xs text-zinc-500">Vision immediate de la production.</p>
+          <h2 className="text-lg font-bold text-palm">Repartition des statuts</h2>
+          <p className="text-xs text-ink-muted">Vision immediate de la production.</p>
         </div>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
@@ -217,45 +209,15 @@ export function DashboardAnalytics({
                 paddingAngle={3}
               >
                 {statusDistribution.map((entry, index) => (
-                  <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`status-${entry.name}-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip />
             </PieChart>
           </ResponsiveContainer>
-        </div>
-      </Card>
-
-      <Card className="xl:col-span-12 overflow-hidden p-0">
-        <div className="border-b border-zinc-100 px-4 py-3">
-          <h2 className="text-lg font-black">Commandes recentes</h2>
-          <p className="text-xs text-zinc-500">
-            Controle rapide des dernieres transactions.
-          </p>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead className="bg-zinc-50 text-left text-zinc-600">
-              <tr>
-                <th className="px-4 py-3 font-semibold">Code</th>
-                <th className="px-4 py-3 font-semibold">Client</th>
-                <th className="px-4 py-3 font-semibold">Type</th>
-                <th className="px-4 py-3 font-semibold">Statut</th>
-                <th className="px-4 py-3 font-semibold">Montant</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentOrders.map((order) => (
-                <tr key={order.orderCode} className="border-t border-zinc-100">
-                  <td className="px-4 py-3 font-semibold">{order.orderCode}</td>
-                  <td className="px-4 py-3">{order.customerName}</td>
-                  <td className="px-4 py-3 capitalize">{order.deliveryType}</td>
-                  <td className="px-4 py-3">{order.statusLabel}</td>
-                  <td className="px-4 py-3">{formatPrice(order.total)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       </Card>
     </div>

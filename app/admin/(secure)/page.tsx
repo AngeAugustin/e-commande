@@ -9,7 +9,6 @@ import {
 } from "@/lib/admin-order-stats";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import { connectToDatabase } from "@/lib/mongodb";
-import { Order } from "@/models/Order";
 import { Product } from "@/models/Product";
 import type { OrderStatus } from "@/types";
 
@@ -28,25 +27,14 @@ export default async function AdminDashboardPage() {
     return { key, month };
   });
 
-  const [
-    products,
-    metricsAgg,
-    inProgressOrders,
-    monthlyByMonth,
-    statusAgg,
-    recentOrders,
-  ] = await Promise.all([
-    Product.countDocuments(),
-    aggregateOrderMetrics(),
-    countInProgressOrders(),
-    aggregateMonthlySalesLast12(),
-    aggregateOrdersByStatus(),
-    Order.find()
-      .sort({ createdAt: -1 })
-      .limit(10)
-      .select({ orderCode: 1, customerInfo: 1, deliveryType: 1, status: 1, total: 1 })
-      .lean(),
-  ]);
+  const [products, metricsAgg, inProgressOrders, monthlyByMonth, statusAgg] =
+    await Promise.all([
+      Product.countDocuments(),
+      aggregateOrderMetrics(),
+      countInProgressOrders(),
+      aggregateMonthlySalesLast12(),
+      aggregateOrdersByStatus(),
+    ]);
 
   const totalSales = metricsAgg[0]?.totalSales ?? 0;
   const totalOrders = metricsAgg[0]?.totalOrders ?? 0;
@@ -79,27 +67,19 @@ export default async function AdminDashboardPage() {
     value,
   }));
 
-  const recentOrdersRows = recentOrders.map((order) => ({
-    orderCode: order.orderCode,
-    customerName: order.customerInfo.name,
-    deliveryType: order.deliveryType,
-    statusLabel: ORDER_STATUS_LABELS[order.status as OrderStatus],
-    total: order.total,
-  }));
-
   return (
     <section className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-3xl font-black">Dashboard</h1>
-          <p className="text-sm text-zinc-500">
-            Vue rapide de l activite du restaurant et des commandes recentes.
+          <h1 className="text-3xl font-bold text-palm">Dashboard</h1>
+          <p className="text-sm text-ink-muted">
+            Vue rapide de l&apos;activite du restaurant.
           </p>
         </div>
         <Link
           href="/api/stats/export"
           target="_blank"
-          className="inline-flex items-center justify-center rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-zinc-800"
+          className="inline-flex items-center justify-center rounded-xl bg-chili px-4 py-2 text-sm font-semibold text-white transition hover:bg-chili-hover"
         >
           Exporter
         </Link>
@@ -114,7 +94,6 @@ export default async function AdminDashboardPage() {
         }}
         salesEvolution={salesEvolution}
         statusDistribution={statusDistribution}
-        recentOrders={recentOrdersRows}
       />
     </section>
   );

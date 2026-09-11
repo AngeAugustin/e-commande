@@ -2,8 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { getWhatsAppHref } from "@/lib/contact";
-import { defaultProducts } from "@/lib/mock-data";
+import { connectToDatabase } from "@/lib/mongodb";
 import { formatPrice } from "@/lib/utils";
+import { Product } from "@/models/Product";
 
 const HERO_IMAGE =
   "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1800&q=80";
@@ -23,11 +24,44 @@ const STEPS = [
   },
 ] as const;
 
-export default function Home() {
+export const revalidate = 60;
+
+type FeaturedDish = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+};
+
+async function getFeaturedDishes(): Promise<FeaturedDish[]> {
+  try {
+    await connectToDatabase();
+    const products = await Product.find({ available: true })
+      .sort({ createdAt: -1 })
+      .limit(8)
+      .select("name description price image")
+      .lean();
+
+    return products.map((product) => ({
+      id: String(product._id),
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      image: product.image,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export default async function Home() {
   const whatsappHref = getWhatsAppHref(
     "Bonjour, je souhaite passer une commande chez DOSSOU-YOVO.",
   );
-  const featured = defaultProducts.slice(0, 4);
+  const featured = await getFeaturedDishes();
+  const marqueeItems =
+    featured.length > 0 ? [...featured, ...featured] : [];
 
   return (
     <div className="bg-background">
@@ -146,41 +180,50 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="comptoir-marquee mt-10 overflow-hidden">
-          <div className="comptoir-marquee-track flex w-max gap-4 pe-4 sm:gap-5 sm:pe-5">
-            {[...featured, ...featured].map((dish, index) => (
-              <Link
-                key={`${dish.name}-${index}`}
-                href="/menu"
-                className="group relative w-[78vw] max-w-sm shrink-0 overflow-hidden rounded-3xl sm:w-80"
-                tabIndex={index >= featured.length ? -1 : undefined}
-                aria-hidden={index >= featured.length ? true : undefined}
-              >
-                <div className="relative aspect-[4/5] overflow-hidden">
-                  <Image
-                    src={dish.image}
-                    alt={index >= featured.length ? "" : dish.name}
-                    fill
-                    sizes="(max-width: 640px) 78vw, 320px"
-                    className="object-cover transition duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-palm-deep/90 via-palm-deep/20 to-transparent" />
-                  <span className="absolute top-4 right-4 rounded-lg bg-surface px-2.5 py-1 text-xs font-bold text-palm shadow-sm">
-                    {formatPrice(dish.price)}
-                  </span>
-                  <div className="absolute inset-x-0 bottom-0 p-5">
-                    <p className="font-[family-name:var(--font-display)] text-xl font-bold text-white">
-                      {dish.name}
-                    </p>
-                    <p className="mt-1 line-clamp-2 text-sm text-white/75">
-                      {dish.description}
-                    </p>
+        {featured.length > 0 ? (
+          <div className="comptoir-marquee mt-10 overflow-hidden">
+            <div className="comptoir-marquee-track flex w-max gap-4 pe-4 sm:gap-5 sm:pe-5">
+              {marqueeItems.map((dish, index) => (
+                <Link
+                  key={`${dish.id}-${index}`}
+                  href="/menu"
+                  className="group relative w-[78vw] max-w-sm shrink-0 overflow-hidden rounded-3xl sm:w-80"
+                  tabIndex={index >= featured.length ? -1 : undefined}
+                  aria-hidden={index >= featured.length ? true : undefined}
+                >
+                  <div className="relative aspect-[4/5] overflow-hidden">
+                    <Image
+                      src={dish.image}
+                      alt={index >= featured.length ? "" : dish.name}
+                      fill
+                      sizes="(max-width: 640px) 78vw, 320px"
+                      className="object-cover transition duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-palm-deep/90 via-palm-deep/20 to-transparent" />
+                    <span className="absolute top-4 right-4 rounded-lg bg-surface px-2.5 py-1 text-xs font-bold text-palm shadow-sm">
+                      {formatPrice(dish.price)}
+                    </span>
+                    <div className="absolute inset-x-0 bottom-0 p-5">
+                      <p className="font-[family-name:var(--font-display)] text-xl font-bold text-white">
+                        {dish.name}
+                      </p>
+                      <p className="mt-1 line-clamp-2 text-sm text-white/75">
+                        {dish.description}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          <p className="mx-auto mt-10 max-w-6xl px-5 text-sm text-ink-muted sm:px-8">
+            Aucun plat disponible pour le moment.{" "}
+            <Link href="/menu" className="font-semibold text-chili hover:underline">
+              Voir le menu
+            </Link>
+          </p>
+        )}
       </section>
 
       {/* —— Livraison / Retrait —— */}

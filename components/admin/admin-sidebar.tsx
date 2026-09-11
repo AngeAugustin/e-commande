@@ -92,10 +92,10 @@ export function AdminSidebar({
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/95 backdrop-blur lg:hidden">
+      <header className="sticky top-0 z-40 shrink-0 border-b border-border/70 bg-surface/95 backdrop-blur lg:hidden">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-black text-white">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-palm text-white">
               <svg
                 aria-hidden="true"
                 viewBox="0 0 24 24"
@@ -113,25 +113,27 @@ export function AdminSidebar({
               </svg>
             </span>
             <div>
-              <p className="text-base font-black tracking-tight">Chez DOSSOU-YOVO</p>
-              <p className="text-xs text-zinc-500">Back Office Admin</p>
+              <p className="font-[family-name:var(--font-display)] text-base font-bold tracking-tight text-palm">
+                Chez DOSSOU-YOVO
+              </p>
+              <p className="text-xs text-ink-muted">Back Office Admin</p>
             </div>
           </div>
           <button
             onClick={() => setOpenModal(true)}
             aria-label="Ouvrir le profil admin"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-black text-sm font-bold text-white"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-chili text-sm font-bold text-white"
           >
             {initials}
           </button>
         </div>
       </header>
 
-      <aside className="hidden min-h-screen w-72 flex-col border-r border-zinc-200 bg-white p-6 lg:flex">
+      <aside className="hidden h-dvh w-72 shrink-0 flex-col border-r border-border/70 bg-surface p-6 lg:flex">
         <div>
-          <div className="mb-6 rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+          <div className="mb-6 rounded-2xl border border-border bg-gradient-to-br from-palm to-palm-deep p-4 text-white shadow-[0_12px_32px_rgba(10,61,46,0.2)]">
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-black text-white">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 text-white">
                 <svg
                   aria-hidden="true"
                   viewBox="0 0 24 24"
@@ -149,8 +151,10 @@ export function AdminSidebar({
                 </svg>
               </span>
               <div>
-                <p className="text-base font-black tracking-tight">Chez DOSSOU-YOVO</p>
-                <p className="text-xs text-zinc-500">Back Office</p>
+                <p className="font-[family-name:var(--font-display)] text-base font-bold tracking-tight">
+                  Chez DOSSOU-YOVO
+                </p>
+                <p className="text-xs text-white/70">Back Office</p>
               </div>
             </div>
           </div>
@@ -163,8 +167,8 @@ export function AdminSidebar({
                 className={cn(
                   "inline-flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition",
                   isLinkActive(link.href)
-                    ? "bg-black text-white shadow-sm"
-                    : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200",
+                    ? "bg-palm text-white shadow-[0_6px_16px_rgba(10,61,46,0.25)]"
+                    : "bg-surface-muted text-ink-muted hover:bg-palm/10 hover:text-palm",
                 )}
               >
                 <NavIcon type={link.icon} />
@@ -175,28 +179,28 @@ export function AdminSidebar({
         </div>
 
         <button
-          className="mt-auto inline-flex w-full items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-3 text-left transition hover:bg-zinc-50"
+          className="mt-auto inline-flex w-full items-center gap-3 rounded-2xl border border-border bg-surface p-3 text-left transition hover:border-palm/25 hover:bg-surface-muted"
           onClick={() => setOpenModal(true)}
         >
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-black text-sm font-bold text-white">
+          <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-chili text-sm font-bold text-white">
             {initials}
           </span>
           <span className="min-w-0">
-            <span className="block truncate text-sm font-semibold">{adminEmail}</span>
-            <span className="block text-xs text-zinc-500">{adminRole}</span>
+            <span className="block truncate text-sm font-semibold text-foreground">{adminEmail}</span>
+            <span className="block text-xs text-ink-muted">{adminRole}</span>
           </span>
         </button>
       </aside>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200 bg-white lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-surface/95 backdrop-blur lg:hidden">
         <div className="grid grid-cols-4 gap-1 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
-                "inline-flex flex-col items-center justify-center gap-1 rounded-xl py-2 text-[11px] font-medium transition",
-                isLinkActive(link.href) ? "text-black" : "text-zinc-500 hover:text-zinc-800",
+                "inline-flex flex-col items-center justify-center gap-1 rounded-xl py-2 text-[11px] font-semibold transition",
+                isLinkActive(link.href) ? "text-chili" : "text-ink-muted hover:text-palm",
               )}
             >
               <NavIcon type={link.icon} />
@@ -207,24 +211,24 @@ export function AdminSidebar({
       </nav>
 
       {openModal ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl">
-            <h3 className="text-lg font-black">Profil administrateur</h3>
-            <div className="mt-3 space-y-2 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-palm-deep/45 p-4">
+          <div className="w-full max-w-sm rounded-2xl border border-border bg-surface p-5 shadow-xl">
+            <h3 className="text-lg font-bold text-palm">Profil administrateur</h3>
+            <div className="mt-3 space-y-2 rounded-xl border border-border bg-surface-muted p-3">
               <p className="text-sm">
-                <span className="font-semibold text-zinc-700">Nom :</span>{" "}
-                <span className="text-zinc-600">{adminLastName || "-"}</span>
+                <span className="font-semibold text-foreground">Nom :</span>{" "}
+                <span className="text-ink-muted">{adminLastName || "-"}</span>
               </p>
               <p className="text-sm">
-                <span className="font-semibold text-zinc-700">Prenom :</span>{" "}
-                <span className="text-zinc-600">{adminFirstName || "-"}</span>
+                <span className="font-semibold text-foreground">Prenom :</span>{" "}
+                <span className="text-ink-muted">{adminFirstName || "-"}</span>
               </p>
               <p className="text-sm">
-                <span className="font-semibold text-zinc-700">Email :</span>{" "}
-                <span className="text-zinc-600">{adminEmail}</span>
+                <span className="font-semibold text-foreground">Email :</span>{" "}
+                <span className="text-ink-muted">{adminEmail}</span>
               </p>
             </div>
-            <p className="mt-2 text-sm text-zinc-600">
+            <p className="mt-2 text-sm text-ink-muted">
               Voulez-vous vraiment vous deconnecter de votre session admin ?
             </p>
             <div className="mt-4 flex justify-end gap-2">
