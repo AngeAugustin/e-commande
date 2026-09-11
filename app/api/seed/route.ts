@@ -1,3 +1,5 @@
+import { timingSafeEqual } from "crypto";
+
 import { NextResponse } from "next/server";
 
 import { hashPassword } from "@/lib/auth";
@@ -10,19 +12,27 @@ function seedUnauthorized() {
   return NextResponse.json({ message: "Non autorise" }, { status: 403 });
 }
 
+function secretsEqual(provided: string, expected: string): boolean {
+  const a = Buffer.from(provided);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) {
+    // Évite un early-return trop évident sur la longueur seule.
+    timingSafeEqual(b, b);
+    return false;
+  }
+  return timingSafeEqual(a, b);
+}
+
 export async function POST(request: Request) {
   try {
-    const isProd = process.env.NODE_ENV === "production";
     const seedSecret = process.env.SEED_SECRET?.trim();
+    if (!seedSecret || seedSecret.length < 16) {
+      return seedUnauthorized();
+    }
 
-    if (isProd) {
-      if (!seedSecret) {
-        return seedUnauthorized();
-      }
-      const provided = request.headers.get("x-seed-secret")?.trim();
-      if (!provided || provided !== seedSecret) {
-        return seedUnauthorized();
-      }
+    const provided = request.headers.get("x-seed-secret")?.trim() ?? "";
+    if (!secretsEqual(provided, seedSecret)) {
+      return seedUnauthorized();
     }
 
     const adminEmail = process.env.ADMIN_EMAIL?.trim();

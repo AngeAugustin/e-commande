@@ -7,8 +7,13 @@ import { Product } from "@/models/Product";
 
 export async function GET() {
   try {
+    const unauthorized = await ensureAdminApi();
+    const isAdmin = unauthorized === null;
+
     await connectToDatabase();
-    const products = await Product.find().sort({ createdAt: -1 });
+    const products = await Product.find(isAdmin ? {} : { available: true }).sort({
+      createdAt: -1,
+    });
     return NextResponse.json(products);
   } catch {
     return NextResponse.json(

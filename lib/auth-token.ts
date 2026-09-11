@@ -7,13 +7,10 @@ export interface AdminTokenPayload extends JwtPayload {
 
 export function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET?.trim();
-  if (secret) return secret;
-
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("JWT_SECRET manquant : obligatoire en production");
+  if (!secret) {
+    throw new Error("JWT_SECRET manquant : obligatoire dans tous les environnements");
   }
-
-  return "dev_secret_to_change";
+  return secret;
 }
 
 export function signAdminToken(userId: string) {
@@ -22,7 +19,15 @@ export function signAdminToken(userId: string) {
 
 export function verifyAdminToken(token: string): AdminTokenPayload | null {
   try {
-    return jwt.verify(token, getJwtSecret()) as AdminTokenPayload;
+    const payload = jwt.verify(token, getJwtSecret()) as JwtPayload;
+    if (
+      typeof payload.userId !== "string" ||
+      !payload.userId ||
+      payload.role !== "admin"
+    ) {
+      return null;
+    }
+    return payload as AdminTokenPayload;
   } catch {
     return null;
   }

@@ -3,6 +3,13 @@ import { Types } from "mongoose";
 import { Product } from "@/models/Product";
 import type { CartItem, DeliveryType } from "@/types";
 
+const MAX_RAW_LINES = 80;
+const MAX_DISTINCT_PRODUCTS = 40;
+const MAX_QTY_PER_PRODUCT = 99;
+const MAX_NAME_LEN = 80;
+const MAX_PHONE_LEN = 30;
+const MAX_ADDRESS_LEN = 200;
+
 type RawCartLine = {
   productId?: unknown;
   quantity?: unknown;
@@ -35,6 +42,9 @@ export async function resolveOrderFromRequestBody(
   if (!Array.isArray(rawItems) || rawItems.length === 0) {
     return { ok: false, message: "Panier vide" };
   }
+  if (rawItems.length > MAX_RAW_LINES) {
+    return { ok: false, message: "Panier trop volumineux" };
+  }
 
   const customerInfo = body.customerInfo as Record<string, unknown> | undefined;
   const name = String(customerInfo?.name ?? "").trim();
@@ -43,6 +53,9 @@ export async function resolveOrderFromRequestBody(
 
   if (!name || !phone) {
     return { ok: false, message: "Nom et telephone client obligatoires" };
+  }
+  if (name.length > MAX_NAME_LEN || phone.length > MAX_PHONE_LEN || address.length > MAX_ADDRESS_LEN) {
+    return { ok: false, message: "Informations client trop longues" };
   }
 
   const deliveryType = body.deliveryType;
@@ -61,13 +74,18 @@ export async function resolveOrderFromRequestBody(
     if (!productId || !Types.ObjectId.isValid(productId) || quantity == null) {
       return { ok: false, message: "Ligne de panier invalide" };
     }
-    if (quantity > 99) {
+    if (quantity > MAX_QTY_PER_PRODUCT) {
       return { ok: false, message: "Quantite trop elevee" };
     }
-    quantityByProductId.set(
-      productId,
-      (quantityByProductId.get(productId) ?? 0) + quantity,
-    );
+    const next = (quantityByProductId.get(productId) ?? 0) + quantity;
+    if (next > MAX_QTY_PER_PRODUCT) {
+      return { ok: false, message: "Quantite trop elevee" };
+    }
+    quantityByProductId.set(productId, next);
+  }
+
+  if (quantityByProductId.size > MAX_DISTINCT_PRODUCTS) {
+    return { ok: false, message: "Trop de produits dans le panier" };
   }
 
   const productIds = [...quantityByProductId.keys()];
