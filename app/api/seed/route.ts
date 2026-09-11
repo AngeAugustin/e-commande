@@ -36,7 +36,11 @@ export async function POST(request: Request) {
     }
 
     const adminEmail = process.env.ADMIN_EMAIL?.trim();
-    const adminPassword = process.env.ADMIN_PASSWORD;
+    // Ne pas trimmer le mot de passe : espaces intentionnels possibles.
+    // Sur Vercel, éviter les # non quotés si tu colles via un fichier .env.
+    const adminPassword = process.env.ADMIN_PASSWORD ?? "";
+    const resetAdmin =
+      request.headers.get("x-seed-reset-admin")?.trim() === "1";
 
     if (!adminEmail || !adminPassword) {
       return NextResponse.json(
@@ -59,20 +63,30 @@ export async function POST(request: Request) {
       await Product.insertMany(defaultProducts);
     }
 
-    const existingAdmin = await User.findOne({ email: adminEmail.toLowerCase() });
+    const email = adminEmail.toLowerCase();
+    const existingAdmin = await User.findOne({ email });
+    let adminAction: "created" | "password_reset" | "unchanged" = "unchanged";
+
     if (!existingAdmin) {
       await User.create({
         firstName: "Admin",
         lastName: "Principal",
-        email: adminEmail.toLowerCase(),
+        email,
         password: await hashPassword(adminPassword),
         role: "admin",
       });
+      adminAction = "created";
+    } else if (resetAdmin) {
+      existingAdmin.password = await hashPassword(adminPassword);
+      existingAdmin.role = "admin";
+      await existingAdmin.save();
+      adminAction = "password_reset";
     }
 
     return NextResponse.json({
       ok: true,
       message: "Seed termine",
+      adminAction,
     });
   } catch {
     return NextResponse.json({ message: "Seed impossible" }, { status: 500 });
