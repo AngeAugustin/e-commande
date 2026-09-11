@@ -15,23 +15,22 @@ Application fullstack Next.js (App Router) pour un restaurant local:
 cp .env.example .env.local
 ```
 
-2. Lancer MongoDB (local ou Atlas), puis:
+2. Renseigner un `JWT_SECRET` fort et des identifiants admin uniques dans `.env.local`.
+
+3. Lancer MongoDB (local ou Atlas), puis:
 
 ```bash
 npm install
 npm run dev
 ```
 
-3. Initialiser les donnees (admin + produits):
+4. Initialiser les donnees (admin + produits):
 
 ```bash
 curl -X POST http://localhost:3000/api/seed
 ```
 
-## Identifiants admin (par defaut)
-
-- Email: `admin@ilosiwaju.com`
-- Mot de passe: `Admin1234!`
+En production, le seed est bloque sauf si `SEED_SECRET` est defini et envoye via l'en-tete `x-seed-secret`.
 
 ## Stack
 

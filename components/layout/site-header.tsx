@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { CartIndicator } from "@/components/layout/cart-indicator";
+import { getWhatsAppHref } from "@/lib/contact";
 import { useCartStore } from "@/store/cart-store";
 
 const links = [
@@ -12,7 +13,7 @@ const links = [
   { href: "/suivi", label: "Suivi" },
 ];
 
-const whatsappHref = "https://wa.me/2290197339551";
+const whatsappHref = getWhatsAppHref();
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -29,45 +30,61 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-zinc-200/70 bg-white">
+      <header className="sticky top-0 z-30 border-b border-border/60 bg-surface/90 backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3">
-          <Link href="/" className="text-lg font-black tracking-tight">
+          <Link
+            href="/"
+            className="font-[family-name:var(--font-display)] text-lg font-extrabold tracking-tight text-palm"
+          >
             <span className="inline-flex items-center gap-2">
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 24 24"
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 6.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
-                <path d="M4 15a8 8 0 0 1 16 0" />
-                <path d="M3 15h18" />
-                <path d="M5 19h14" />
-              </svg>
-              Manger Sain (Chez DOSSOU-YOVO)
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-palm text-white">
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 6.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
+                  <path d="M4 15a8 8 0 0 1 16 0" />
+                  <path d="M3 15h18" />
+                  <path d="M5 19h14" />
+                </svg>
+              </span>
+              Chez DOSSOU-YOVO
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-2 md:flex">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="rounded-full px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100"
-              >
-                {link.label}
-              </Link>
-            ))}
+          <nav className="hidden items-center gap-1 md:flex">
+            {links.map((link) => {
+              const isActive =
+                link.href === "/"
+                  ? pathname === "/"
+                  : pathname === link.href || pathname.startsWith(`${link.href}/`);
+
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
+                    isActive
+                      ? "bg-palm text-white"
+                      : "text-ink-muted hover:bg-palm/8 hover:text-palm"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
             <Link
               href={whatsappHref}
               target="_blank"
               rel="noreferrer"
               aria-label="Contacter le restaurant sur WhatsApp"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900"
+              className="ml-1 inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-[#25D366] transition hover:border-[#25D366]/40 hover:bg-[#25D366]/10"
             >
               <svg
                 aria-hidden="true"
@@ -86,7 +103,7 @@ export function SiteHeader() {
             target="_blank"
             rel="noreferrer"
             aria-label="Contacter le restaurant sur WhatsApp"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900 md:hidden"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-[#25D366] transition hover:border-[#25D366]/40 hover:bg-[#25D366]/10 md:hidden"
           >
             <svg
               aria-hidden="true"
@@ -100,7 +117,7 @@ export function SiteHeader() {
         </div>
       </header>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200 bg-white md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-surface/95 backdrop-blur-md md:hidden">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-4 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2">
           {mobileLinks.map((link) => {
             const isActive =
@@ -112,8 +129,8 @@ export function SiteHeader() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`relative flex flex-col items-center gap-1 rounded-xl py-2 text-xs font-medium transition ${
-                  isActive ? "text-black" : "text-zinc-500 hover:text-zinc-800"
+                className={`relative flex flex-col items-center gap-1 rounded-xl py-2 text-xs font-semibold transition ${
+                  isActive ? "text-chili" : "text-ink-muted hover:text-palm"
                 }`}
               >
                 {link.href === "/" ? (
@@ -183,7 +200,7 @@ export function SiteHeader() {
                       <path d="M3 4h2l2.4 10.5h10.8L21 7H6.8" />
                     </svg>
                     {count > 0 ? (
-                      <span className="absolute right-5 top-1 rounded-full bg-black px-1.5 text-[10px] text-white">
+                      <span className="absolute right-5 top-1 rounded-full bg-chili px-1.5 text-[10px] text-white">
                         {count}
                       </span>
                     ) : null}

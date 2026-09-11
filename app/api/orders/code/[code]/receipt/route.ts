@@ -77,7 +77,7 @@ export async function GET(_: Request, { params }: RouteParams) {
       y -= size + 4;
     };
 
-    drawCentered("Manger Sain (Chez DOSSOU-YOVO)", 12, true);
+    drawCentered("Chez DOSSOU-YOVO", 12, true);
     drawCentered("Cuisine locale premium", 8, false);
     drawCentered("Ticket de caisse", 8, false);
     drawLine("==========================================", 8, false);

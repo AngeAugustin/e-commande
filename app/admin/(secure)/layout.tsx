@@ -15,12 +15,17 @@ export default async function SecureAdminLayout({
   if (!admin) {
     redirect("/admin/login");
   }
+
   await connectToDatabase();
   const user = await User.findById(admin.userId).lean();
-  const adminEmail = user?.email ?? "admin@ilosiwaju.com";
-  const adminRole = user?.role ?? "admin";
-  const adminFirstName = user?.firstName ?? "Admin";
-  const adminLastName = user?.lastName ?? "";
+  if (!user || user.role !== "admin") {
+    redirect("/admin/login");
+  }
+
+  const adminEmail = user.email;
+  const adminRole = user.role;
+  const adminFirstName = user.firstName ?? "Admin";
+  const adminLastName = user.lastName ?? "";
 
   return (
     <div className="flex min-h-screen flex-col lg:flex-row">

@@ -39,18 +39,15 @@ export async function GET() {
     const totalOrders = orders.length;
     const totalSales = orders.reduce((acc, order) => acc + order.total, 0);
     const inProgressCount = orders.filter(
-      (order) =>
-        order.status === "paye" ||
-        order.status === "en_attente" ||
-        order.status === "en_preparation",
+      (order) => order.status === "paye" || order.status === "en_attente",
     ).length;
 
     const doc = new PDFDocument({ margin: 40, size: "A4" });
     const now = new Date();
-    doc.info.Title = "Manger Sain (Chez DOSSOU-YOVO) - Rapport Dashboard";
-    doc.info.Author = "Manger Sain (Chez DOSSOU-YOVO)";
+    doc.info.Title = "Chez DOSSOU-YOVO - Rapport Dashboard";
+    doc.info.Author = "Chez DOSSOU-YOVO";
 
-    doc.fontSize(20).text("Manger Sain (Chez DOSSOU-YOVO) - Rapport Dashboard", {
+    doc.fontSize(20).text("Chez DOSSOU-YOVO - Rapport Dashboard", {
       align: "left",
     });
     doc.moveDown(0.3);

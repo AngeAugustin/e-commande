@@ -1,34 +1,19 @@
 import bcrypt from "bcryptjs";
-import jwt, { type JwtPayload } from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { cache } from "react";
 
-const JWT_SECRET = process.env.JWT_SECRET || "dev_secret_to_change";
+import { signAdminToken, verifyAdminToken } from "@/lib/auth-token";
+
 const AUTH_COOKIE = "ilosiwaju_admin_token";
 
-interface AdminTokenPayload extends JwtPayload {
-  userId: string;
-  role: "admin";
-}
+export { signAdminToken, verifyAdminToken };
 
 export async function hashPassword(password: string) {
-  return bcrypt.hash(password, 10);
+  return bcrypt.hash(password, 12);
 }
 
 export async function comparePassword(password: string, hash: string) {
   return bcrypt.compare(password, hash);
-}
-
-export function signAdminToken(userId: string) {
-  return jwt.sign({ userId, role: "admin" }, JWT_SECRET, { expiresIn: "7d" });
-}
-
-export function verifyAdminToken(token: string): AdminTokenPayload | null {
-  try {
-    return jwt.verify(token, JWT_SECRET) as AdminTokenPayload;
-  } catch {
-    return null;
-  }
 }
 
 export const getAdminFromCookie = cache(async () => {
@@ -44,4 +29,14 @@ export const getAdminFromCookie = cache(async () => {
 
 export function getAuthCookieName() {
   return AUTH_COOKIE;
+}
+
+export function getAuthCookieOptions(maxAgeSeconds = 60 * 60 * 24 * 7) {
+  return {
+    httpOnly: true,
+    sameSite: "lax" as const,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: maxAgeSeconds,
+    path: "/",
+  };
 }

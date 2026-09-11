@@ -9,6 +9,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 export function RootShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
+  const isHome = pathname === "/";
 
   if (isAdmin) {
     return <>{children}</>;
@@ -17,7 +18,13 @@ export function RootShell({ children }: { children: ReactNode }) {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-4 md:pb-6 md:pt-6">
+      <main
+        className={
+          isHome
+            ? "w-full flex-1 pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-0"
+            : "mx-auto w-full max-w-6xl flex-1 px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-5 md:pb-8 md:pt-8"
+        }
+      >
         {children}
       </main>
       <div className="hidden md:block">

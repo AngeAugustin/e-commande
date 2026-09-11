@@ -20,6 +20,7 @@ const initialForm = {
   firstName: "",
   lastName: "",
   email: "",
+  password: "",
   role: "ADMIN",
 };
 
@@ -67,10 +68,7 @@ export function UsersManager({
     if (editingId) {
       toast.success("Utilisateur modifie");
     } else {
-      toast.success(
-        `Utilisateur cree. Mot de passe par defaut: ${data.defaultPassword}`,
-        { duration: 5500 },
-      );
+      toast.success("Utilisateur cree");
     }
 
     setForm(initialForm);
@@ -185,6 +183,7 @@ export function UsersManager({
                             firstName: user.firstName || "",
                             lastName: user.lastName || "",
                             email: user.email,
+                            password: "",
                             role: "ADMIN",
                           });
                           setOpenModal(true);
@@ -248,7 +247,7 @@ export function UsersManager({
             <p className="mb-4 text-sm text-zinc-500">
               {editingId
                 ? "Mettez a jour les informations de cet administrateur."
-                : "Renseignez les informations du nouvel administrateur."}
+                : "Renseignez les informations et un mot de passe fort (min 10 caracteres)."}
             </p>
 
             <form className="grid gap-3 sm:grid-cols-2" onSubmit={submitForm}>
@@ -272,6 +271,18 @@ export function UsersManager({
                 value={form.email}
                 onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
               />
+              {!editingId ? (
+                <Input
+                  required
+                  type="password"
+                  minLength={10}
+                  autoComplete="new-password"
+                  className="sm:col-span-2"
+                  placeholder="Mot de passe (min 10 caracteres)"
+                  value={form.password}
+                  onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+                />
+              ) : null}
               <Input required className="sm:col-span-2" value={form.role} disabled />
 
               <div className="flex gap-2 sm:col-span-2 sm:justify-end">

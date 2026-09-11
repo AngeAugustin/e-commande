@@ -1,20 +1,12 @@
 import type { OrderStatus } from "@/types";
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
-  en_attente: "Attente paiement",
+  en_attente: "Attente depot MoMo",
   paye: "Payé",
-  en_preparation: "En preparation",
   pret: "Pret",
-  livre: "Livre",
 };
 
-export const ORDER_STATUSES: OrderStatus[] = [
-  "paye",
-  "en_attente",
-  "en_preparation",
-  "pret",
-  "livre",
-];
+export const ORDER_STATUSES: OrderStatus[] = ["en_attente", "paye", "pret"];
 
 export const DELIVERY_TYPES = [
   { value: "livraison", label: "Livraison" },

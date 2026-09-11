@@ -1,7 +1,8 @@
-import { notFound, redirect } from "next/navigation";
-import Link from "next/link";
+import { notFound } from "next/navigation";
 
 import { CopyOrderCodeButton } from "@/components/commande/copy-order-code-button";
+import { MomoPaymentInstructions } from "@/components/commande/momo-payment-instructions";
+import { OrderReceiptPreview } from "@/components/commande/order-receipt-preview";
 import { Card } from "@/components/ui/card";
 import {
   COMMANDE_TRACKING_LABELS,
@@ -12,7 +13,7 @@ import { isOrderPaid } from "@/lib/order-payment";
 import { connectToDatabase } from "@/lib/mongodb";
 import { formatPrice } from "@/lib/utils";
 import { Order } from "@/models/Order";
-import type { OrderStatus } from "@/types";
+import type { DeliveryType, OrderStatus } from "@/types";
 
 type CommandePageProps = {
   params: Promise<{ code: string }>;
@@ -29,93 +30,91 @@ export default async function CommandePage({ params }: CommandePageProps) {
     notFound();
   }
 
-  if (order.paymentStatus === "pending") {
-    redirect(`/commande/${code}/paiement`);
-  }
-  if (order.paymentStatus === "failed") {
-    redirect("/checkout");
-  }
-
   const currentStatus = order.status as OrderStatus;
-  const currentStepIndex = getCommandeTrackingStepIndex(currentStatus);
-  const showPaidBadge = isOrderPaid(order.paymentStatus as string | undefined);
+  const paymentStatus = order.paymentStatus as string | undefined;
+  const paid = isOrderPaid(paymentStatus);
+  const currentStepIndex = getCommandeTrackingStepIndex(currentStatus, paymentStatus);
+
+  const receiptOrder = {
+    orderCode: order.orderCode,
+    createdAt: new Date(order.createdAt).toISOString(),
+    total: order.total,
+    status: currentStatus,
+    deliveryType: order.deliveryType as DeliveryType,
+    paymentStatus,
+    customerInfo: {
+      name: order.customerInfo.name,
+      phone: order.customerInfo.phone,
+      address: order.customerInfo.address,
+    },
+    items: order.items.map((item: { name: string; quantity: number; price: number }) => ({
+      name: item.name,
+      quantity: item.quantity,
+      price: item.price,
+    })),
+  };
 
   return (
     <section className="mx-auto max-w-2xl space-y-4">
       <Card className="space-y-3">
-        <p className="text-sm text-zinc-500">Code commande</p>
+        <p className="text-sm text-ink-muted">Code commande</p>
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-black">{order.orderCode}</h1>
-            {showPaidBadge ? (
+            <h1 className="text-2xl font-extrabold text-palm">{order.orderCode}</h1>
+            {paid ? (
               <span
                 className="inline-flex shrink-0 items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-800"
                 aria-label="Commande deja payee"
               >
                 Payé
               </span>
-            ) : null}
+            ) : (
+              <span
+                className="inline-flex shrink-0 items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-900"
+                aria-label="En attente de depot MoMo"
+              >
+                Attente paiement
+              </span>
+            )}
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <Link
-              href={`/api/orders/code/${order.orderCode}/receipt`}
-              target="_blank"
-              title="Telecharger le recu"
-              aria-label="Telecharger le recu"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700 transition hover:border-zinc-400 hover:text-black"
-            >
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 24 24"
-                className="h-4.5 w-4.5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 3v11" />
-                <path d="m8 10 4 4 4-4" />
-                <path d="M4 17.5v1.2A2.3 2.3 0 0 0 6.3 21h11.4a2.3 2.3 0 0 0 2.3-2.3v-1.2" />
-              </svg>
-            </Link>
             <CopyOrderCodeButton code={order.orderCode} />
           </div>
         </div>
-        <div className="space-y-2">
-          <p className="text-sm font-semibold text-zinc-700">Suivi de la commande</p>
-          <ol className="grid grid-cols-4 gap-2">
-            {COMMANDE_TRACKING_STEP_IDS.map((stepId, index) => {
-              const isPast = index < currentStepIndex;
-              const isCurrent = index === currentStepIndex;
-              const isLivreNextWhenPret = currentStatus === "pret" && stepId === "livre";
 
-              const emerald =
-                "border-emerald-600 bg-emerald-50 text-emerald-700" as const;
-              const orange =
-                "border-orange-500 bg-orange-50 text-orange-700" as const;
-              const muted = "border-zinc-300 bg-white text-zinc-500" as const;
+        {!paid ? <MomoPaymentInstructions orderCode={order.orderCode} total={order.total} /> : null}
+
+        <div className="space-y-2">
+          <p className="text-sm font-semibold text-palm">Suivi de la commande</p>
+          <ol className="grid grid-cols-2 gap-2">
+            {COMMANDE_TRACKING_STEP_IDS.map((stepId, index) => {
+              const isPast = currentStepIndex >= 0 && index < currentStepIndex;
+              const isCurrent = currentStepIndex >= 0 && index === currentStepIndex;
+              const isAwaitingPayment = !paid && stepId === "paye";
+
+              const done =
+                "border-palm bg-palm/10 text-palm" as const;
+              const current =
+                "border-chili bg-chili/10 text-chili" as const;
+              const muted = "border-border bg-surface text-ink-muted" as const;
 
               let statusClass: string;
               let textClass: string;
-              if (isLivreNextWhenPret) {
-                statusClass = orange;
-                textClass = "text-orange-700";
+              if (isAwaitingPayment) {
+                statusClass = current;
+                textClass = "text-chili";
               } else if (currentStatus === "pret" && isCurrent && stepId === "pret") {
-                statusClass = emerald;
-                textClass = "text-emerald-700";
-              } else if (currentStatus === "livre" && isCurrent) {
-                statusClass = emerald;
-                textClass = "text-emerald-700";
+                statusClass = done;
+                textClass = "text-palm";
               } else if (isPast) {
-                statusClass = emerald;
-                textClass = "text-emerald-700";
+                statusClass = done;
+                textClass = "text-palm";
               } else if (isCurrent) {
-                statusClass = orange;
-                textClass = "text-orange-700";
+                statusClass = current;
+                textClass = "text-chili";
               } else {
                 statusClass = muted;
-                textClass = "text-zinc-500";
+                textClass = "text-ink-muted";
               }
 
               return (
@@ -123,7 +122,7 @@ export default async function CommandePage({ params }: CommandePageProps) {
                   <span
                     className={`inline-flex h-9 w-9 items-center justify-center rounded-full border ${statusClass}`}
                   >
-                    {stepId === "paye" ? (
+                    {stepId === "paye" || stepId === "pret" ? (
                       <svg
                         aria-hidden="true"
                         viewBox="0 0 24 24"
@@ -136,57 +135,6 @@ export default async function CommandePage({ params }: CommandePageProps) {
                       >
                         <circle cx="12" cy="12" r="8" />
                         <path d="m8.8 12.3 2.2 2.3 4.2-4.6" />
-                      </svg>
-                    ) : null}
-                    {stepId === "en_preparation" ? (
-                      <svg
-                        aria-hidden="true"
-                        viewBox="0 0 24 24"
-                        className="h-4.5 w-4.5"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M4 14h16" />
-                        <path d="M6 10.5h12V14a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4v-3.5Z" />
-                        <path d="M12 4.8c1.4 1 2.2 2.2 2.2 3.6A2.2 2.2 0 0 1 12 10.6a2.2 2.2 0 0 1-2.2-2.2c0-1.4.8-2.6 2.2-3.6Z" />
-                      </svg>
-                    ) : null}
-                    {stepId === "pret" ? (
-                      <svg
-                        aria-hidden="true"
-                        viewBox="0 0 24 24"
-                        className="h-4.5 w-4.5"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <circle cx="12" cy="12" r="8" />
-                        <path d="m8.8 12.3 2.2 2.3 4.2-4.6" />
-                      </svg>
-                    ) : null}
-                    {stepId === "livre" ? (
-                      <svg
-                        aria-hidden="true"
-                        viewBox="0 0 24 24"
-                        className="h-4.5 w-4.5"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <circle cx="6.5" cy="17.5" r="1.7" />
-                        <circle cx="17.5" cy="17.5" r="1.7" />
-                        <path d="M2.8 17.5h2l3.2-4.3h4.4l2.1 4.3h1.3" />
-                        <path d="M10 9.3h4l1.7 2.6" />
-                        <circle cx="8.9" cy="7.1" r="1.3" />
-                        <path d="M8.4 8.5 6.9 12" />
-                        <path d="M15.8 13.2h3.8" />
                       </svg>
                     ) : null}
                   </span>
@@ -201,13 +149,13 @@ export default async function CommandePage({ params }: CommandePageProps) {
       </Card>
 
       <Card className="space-y-2">
-        <h2 className="text-lg font-bold">Details</h2>
-        <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm">
+        <h2 className="text-lg font-bold text-palm">Détails</h2>
+        <div className="rounded-xl border border-border bg-surface-muted px-3 py-2 text-sm">
           <p className="font-semibold">Informations client</p>
-          <p className="text-zinc-600">{order.customerInfo.name}</p>
-          <p className="text-zinc-600">{order.customerInfo.phone}</p>
+          <p className="text-ink-muted">{order.customerInfo.name}</p>
+          <p className="text-ink-muted">{order.customerInfo.phone}</p>
           {order.deliveryType === "livraison" && order.customerInfo.address ? (
-            <p className="text-zinc-600">Adresse: {order.customerInfo.address}</p>
+            <p className="text-ink-muted">Adresse: {order.customerInfo.address}</p>
           ) : null}
         </div>
         {order.items.map((item: { name: string; quantity: number; price: number }) => (
@@ -218,11 +166,17 @@ export default async function CommandePage({ params }: CommandePageProps) {
             <span>{formatPrice(item.quantity * item.price)}</span>
           </div>
         ))}
-        <div className="mt-3 flex items-center justify-between border-t border-zinc-200 pt-3">
+        <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
           <span className="font-semibold">Total</span>
-          <span className="font-black">{formatPrice(order.total)}</span>
+          <span className="font-extrabold text-palm">{formatPrice(order.total)}</span>
         </div>
       </Card>
+
+      {paid ? (
+        <Card>
+          <OrderReceiptPreview order={receiptOrder} />
+        </Card>
+      ) : null}
     </section>
   );
 }

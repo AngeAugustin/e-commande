@@ -1,3 +1,5 @@
+import { randomBytes } from "crypto";
+
 import clsx, { type ClassValue } from "clsx";
 
 export function cn(...inputs: ClassValue[]) {
@@ -12,8 +14,14 @@ export function formatPrice(value: number) {
   }).format(value);
 }
 
+export function formatDateTime(value: string | Date) {
+  return new Intl.DateTimeFormat("fr-FR", {
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(typeof value === "string" ? new Date(value) : value);
+}
+
+/** Code commande haute entropie (pas de timestamp / Math.random). */
 export function generateOrderCode() {
-  const now = Date.now().toString().slice(-6);
-  const random = Math.floor(Math.random() * 900 + 100);
-  return `ILO-${now}-${random}`;
+  return `ILO-${randomBytes(9).toString("base64url")}`;
 }

@@ -25,7 +25,7 @@ export function CopyOrderCodeButton({ code }: CopyOrderCodeButtonProps) {
       onClick={handleCopy}
       aria-label="Copier le code de commande"
       title={copied ? "Code copie" : "Copier le code"}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-palm transition hover:border-palm/40 hover:bg-palm/5"
     >
       {copied ? (
         <svg

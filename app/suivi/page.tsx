@@ -87,40 +87,40 @@ export default function SuiviPage() {
   }
 
   return (
-    <section className="mosaic-bg relative rounded-3xl border border-zinc-200 bg-white p-4 sm:p-8">
-      <div className="pointer-events-none absolute -top-24 right-0 h-64 w-64 rounded-full bg-black/5 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-24 left-0 h-64 w-64 rounded-full bg-zinc-300/30 blur-3xl" />
+    <section className="kitchen-grain relative overflow-hidden rounded-3xl border border-border bg-surface p-5 sm:p-8">
+      <div className="pointer-events-none absolute -top-24 right-0 h-64 w-64 rounded-full bg-chili/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 left-0 h-64 w-64 rounded-full bg-palm/10 blur-3xl" />
 
-      <div className="relative mx-auto grid max-w-5xl gap-5 lg:grid-cols-[1.2fr_0.8fr]">
+      <div className="relative mx-auto grid max-w-5xl gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <motion.div
           initial={false}
           animate={{ opacity: 1, y: 0 }}
           className="space-y-4"
         >
-          <div className="inline-flex rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-semibold text-zinc-600">
-            Suivi instantane
-          </div>
-          <h1 className="text-3xl font-black leading-tight sm:text-4xl">
-            Votre commande, en direct et en toute simplicite.
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-chili">
+            Suivi instantané
+          </p>
+          <h1 className="text-3xl font-extrabold leading-tight text-palm sm:text-4xl">
+            Votre commande, en direct.
           </h1>
-          <p className="max-w-xl text-sm text-zinc-600 sm:text-base">
-            Entrez votre code pour consulter l avancement en temps reel: en
-            attente, en preparation, pret, puis livre.
+          <p className="max-w-xl text-sm text-ink-muted sm:text-base">
+            Entrez votre code pour consulter l&apos;avancement : dépôt MoMo,
+            payé, puis prêt.
           </p>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <Card className="glass-panel border-zinc-100">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            <Card className="glass-panel">
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
                 Exemple de code
               </p>
-              <p className="mt-1 text-sm font-bold">ILO-123456-789</p>
+              <p className="mt-1 font-mono text-sm font-bold text-palm">ILO-123456-789</p>
             </Card>
-            <Card className="glass-panel border-zinc-100">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            <Card className="glass-panel">
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
                 Conseil
               </p>
-              <p className="mt-1 text-sm font-medium text-zinc-700">
-                Copiez le code recu apres validation de commande.
+              <p className="mt-1 text-sm font-medium text-foreground">
+                Copiez le code reçu après validation de commande.
               </p>
             </Card>
           </div>
@@ -131,8 +131,8 @@ export default function SuiviPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
         >
-          <Card className="glass-panel space-y-4 border-zinc-100 p-5 sm:p-6">
-            <h2 className="text-xl font-black">Rechercher une commande</h2>
+          <Card className="space-y-4 border-palm/15 p-5 shadow-[0_16px_48px_rgba(10,61,46,0.1)] sm:p-6">
+            <h2 className="text-xl font-extrabold text-palm">Rechercher une commande</h2>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -145,17 +145,17 @@ export default function SuiviPage() {
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="Code de commande"
-                className="h-11 border-zinc-300 text-sm"
+                className="h-11"
               />
               <Button className="h-11 w-full" type="submit">
                 Suivre maintenant
               </Button>
             </form>
 
-            <div className="space-y-2 border-t border-zinc-200 pt-3">
+            <div className="space-y-2 border-t border-border pt-3">
               {statusSteps.map((step) => (
-                <div key={step.label} className="flex items-center gap-2 text-sm text-zinc-600">
-                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700">
+                <div key={step.label} className="flex items-center gap-2 text-sm text-ink-muted">
+                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-border bg-surface-muted text-palm">
                     {renderStatusIcon(step.icon)}
                   </span>
                   {step.label}

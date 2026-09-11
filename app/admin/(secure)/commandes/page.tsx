@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { OrderReceiptButton } from "@/components/admin/order-receipt-button";
 import { OrderStatusBadge } from "@/components/admin/order-status-badge";
 import { OrderStatusSelect } from "@/components/admin/order-status-select";
 import { Card } from "@/components/ui/card";
@@ -11,7 +12,7 @@ import {
 import { connectToDatabase } from "@/lib/mongodb";
 import { formatPrice } from "@/lib/utils";
 import { Order } from "@/models/Order";
-import type { OrderStatus } from "@/types";
+import type { DeliveryType, OrderStatus } from "@/types";
 
 export const dynamic = "force-dynamic";
 
@@ -77,7 +78,7 @@ export default async function AdminCommandesPage({ searchParams }: AdminCommande
           <p className="mt-1 text-2xl font-black">{enCours}</p>
         </Card>
         <Card>
-          <p className="text-sm text-zinc-500">Commandes livrees</p>
+          <p className="text-sm text-zinc-500">Commandes pretes</p>
           <p className="mt-1 text-2xl font-black">{terminees}</p>
         </Card>
       </div>
@@ -126,28 +127,28 @@ export default async function AdminCommandesPage({ searchParams }: AdminCommande
                     />
                   </td>
                   <td className="px-4 py-3">
-                    <Link
-                      href={`/api/orders/code/${order.orderCode}/receipt`}
-                      target="_blank"
-                      title="Telecharger le recu"
-                      aria-label={`Telecharger le recu de la commande ${order.orderCode}`}
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700 transition hover:border-zinc-400 hover:text-black"
-                    >
-                      <svg
-                        aria-hidden="true"
-                        viewBox="0 0 24 24"
-                        className="h-4.5 w-4.5"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M12 3v11" />
-                        <path d="m8 10 4 4 4-4" />
-                        <path d="M4 17.5v1.2A2.3 2.3 0 0 0 6.3 21h11.4a2.3 2.3 0 0 0 2.3-2.3v-1.2" />
-                      </svg>
-                    </Link>
+                    <OrderReceiptButton
+                      order={{
+                        orderCode: order.orderCode,
+                        createdAt: new Date(order.createdAt).toISOString(),
+                        total: order.total,
+                        status: order.status as OrderStatus,
+                        deliveryType: order.deliveryType as DeliveryType,
+                        paymentStatus: order.paymentStatus as string | undefined,
+                        customerInfo: {
+                          name: order.customerInfo.name,
+                          phone: order.customerInfo.phone,
+                          address: order.customerInfo.address,
+                        },
+                        items: order.items.map(
+                          (item: { name: string; quantity: number; price: number }) => ({
+                            name: item.name,
+                            quantity: item.quantity,
+                            price: item.price,
+                          }),
+                        ),
+                      }}
+                    />
                   </td>
                 </tr>
               ))}

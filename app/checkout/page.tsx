@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,8 @@ import { formatPrice } from "@/lib/utils";
 import { getCartTotal, useCartStore } from "@/store/cart-store";
 
 export default function CheckoutPage() {
-  const { items, deliveryType, setDeliveryType } = useCartStore((state) => state);
+  const router = useRouter();
+  const { items, deliveryType, setDeliveryType, clearCart } = useCartStore((state) => state);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
@@ -32,7 +34,7 @@ export default function CheckoutPage() {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/orders/init-payment", {
+      const res = await fetch("/api/orders", {
         method: "POST",
         cache: "no-store",
         headers: { "Content-Type": "application/json" },
@@ -44,7 +46,7 @@ export default function CheckoutPage() {
         }),
       });
 
-      let data: { message?: string; paymentUrl?: string; orderCode?: string } = {};
+      let data: { message?: string; orderCode?: string } = {};
       const raw = await res.text();
       try {
         data = raw ? (JSON.parse(raw) as typeof data) : {};
@@ -61,19 +63,17 @@ export default function CheckoutPage() {
         return;
       }
 
-      const paymentUrl = typeof data.paymentUrl === "string" ? data.paymentUrl : "";
-      if (!paymentUrl) {
-        const msg =
-          "Lien de paiement indisponible (reponse sans paymentUrl). Ouvrez l'onglet Reseau (F12) sur init-payment pour voir le JSON.";
+      const orderCode = typeof data.orderCode === "string" ? data.orderCode : "";
+      if (!orderCode) {
+        const msg = "Code de commande indisponible. Reessayez.";
         setSubmitError(msg);
         toast.error(msg);
         return;
       }
 
-      // Eviter toast + assign dans le meme tick (conflit possible avec le routeur App en dev).
-      window.setTimeout(() => {
-        window.location.assign(paymentUrl);
-      }, 0);
+      clearCart();
+      toast.success("Commande enregistree");
+      router.push(`/commande/${orderCode}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Erreur reseau";
       setSubmitError(msg);
@@ -86,12 +86,10 @@ export default function CheckoutPage() {
   return (
     <section className="grid gap-6 lg:grid-cols-2">
       <Card className="space-y-4">
-        <h1 className="text-2xl font-black">Paiement</h1>
-        <p className="text-sm text-zinc-600">
-          Paiement securise via FedaPay (Mobile Money ou carte). Le numero de telephone ci-dessous
-          sert au restaurant (contact / livraison) ; vous indiquerez le numero Mobile Money sur la
-          page FedaPay. Apres validation, redirection vers FedaPay puis suivi de commande une fois le
-          paiement accepte.
+        <h1 className="text-2xl font-extrabold text-palm">Valider la commande</h1>
+        <p className="text-sm text-ink-muted">
+          Après validation, vous recevrez le code de votre commande et les instructions pour payer
+          par dépôt Mobile Money, puis confirmer par WhatsApp.
         </p>
 
         <form className="space-y-3" onSubmit={handleSubmit}>
@@ -103,7 +101,7 @@ export default function CheckoutPage() {
           />
           <Input
             required
-            placeholder="Telephone (contact restaurant)"
+            placeholder="Votre numero de telephone"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
@@ -146,7 +144,7 @@ export default function CheckoutPage() {
       </Card>
 
       <Card className="space-y-3">
-        <h2 className="text-lg font-bold">Recapitulatif</h2>
+        <h2 className="text-lg font-bold text-palm">Récapitulatif</h2>
         {items.map((item) => (
           <div key={item.productId} className="flex items-center justify-between text-sm">
             <span>
@@ -155,9 +153,9 @@ export default function CheckoutPage() {
             <span>{formatPrice(item.price * item.quantity)}</span>
           </div>
         ))}
-        <div className="mt-3 flex items-center justify-between border-t border-zinc-200 pt-3">
+        <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
           <span className="font-semibold">Total</span>
-          <span className="text-lg font-black">{formatPrice(total)}</span>
+          <span className="text-lg font-extrabold text-palm">{formatPrice(total)}</span>
         </div>
       </Card>
     </section>

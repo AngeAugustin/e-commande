@@ -80,7 +80,7 @@ export default function AdminLoginPage() {
                 </svg>
               </span>
               <span className="text-xs font-semibold tracking-[0.2em]">
-                Manger Sain (Chez DOSSOU-YOVO)
+                Chez DOSSOU-YOVO
               </span>
             </div>
 

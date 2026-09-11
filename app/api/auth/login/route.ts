@@ -1,24 +1,54 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-import { comparePassword, getAuthCookieName, signAdminToken } from "@/lib/auth";
+import {
+  comparePassword,
+  getAuthCookieName,
+  getAuthCookieOptions,
+  signAdminToken,
+} from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
+import { clientIpFromRequest, rateLimit } from "@/lib/rate-limit";
 import { User } from "@/models/User";
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    await connectToDatabase();
+    const ip = clientIpFromRequest(request);
+    const limited = rateLimit(`login:${ip}`, { limit: 8, windowMs: 15 * 60 * 1000 });
+    if (!limited.ok) {
+      return NextResponse.json(
+        { message: "Trop de tentatives. Reessayez plus tard." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(limited.retryAfterSec) },
+        },
+      );
+    }
 
-    const user = await User.findOne({ email: body.email });
-    if (!user) {
+    const body = await request.json();
+    const email = String(body?.email ?? "")
+      .trim()
+      .toLowerCase();
+    const password = String(body?.password ?? "");
+
+    if (!email || !password) {
       return NextResponse.json(
         { message: "Email ou mot de passe invalide" },
         { status: 401 },
       );
     }
 
-    const valid = await comparePassword(body.password, user.password);
+    await connectToDatabase();
+
+    const user = await User.findOne({ email });
+    if (!user || user.role !== "admin") {
+      return NextResponse.json(
+        { message: "Email ou mot de passe invalide" },
+        { status: 401 },
+      );
+    }
+
+    const valid = await comparePassword(password, user.password);
     if (!valid) {
       return NextResponse.json(
         { message: "Email ou mot de passe invalide" },
@@ -28,13 +58,7 @@ export async function POST(request: Request) {
 
     const token = signAdminToken(String(user._id));
     const cookieStore = await cookies();
-    cookieStore.set(getAuthCookieName(), token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 7,
-      path: "/",
-    });
+    cookieStore.set(getAuthCookieName(), token, getAuthCookieOptions());
 
     return NextResponse.json({ ok: true });
   } catch {

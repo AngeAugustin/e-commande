@@ -9,9 +9,15 @@ export function ToastProvider() {
       toastOptions={{
         style: {
           borderRadius: "0.9rem",
-          background: "#0f0f0f",
+          background: "#0a3d2e",
           color: "#fff",
           fontSize: "13px",
+        },
+        success: {
+          iconTheme: {
+            primary: "#e0451a",
+            secondary: "#fff",
+          },
         },
       }}
     />

@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 
 import { ensureAdminApi } from "@/lib/api-guard";
+import { createOrder } from "@/lib/create-order";
 import { connectToDatabase } from "@/lib/mongodb";
+import { clientIpFromRequest, rateLimit } from "@/lib/rate-limit";
 import { Order } from "@/models/Order";
 
 export const runtime = "nodejs";
@@ -36,16 +38,17 @@ export async function GET(request: Request) {
   }
 }
 
-/**
- * L’ancien flux passait par POST /api/orders sans FedaPay. Les bundles JS mis en cache
- * continuaient d’appeler cette URL : ils recevront cette erreur jusqu’à rechargement forcé.
- */
-export async function POST() {
-  return NextResponse.json(
-    {
-      message:
-        "Mise a jour requise : rechargez la page avec Ctrl+Maj+R (Windows) ou Cmd+Maj+R (Mac), puis reessayez. Le paiement passe maintenant par FedaPay.",
-    },
-    { status: 410 },
-  );
+export async function POST(request: Request) {
+  const ip = clientIpFromRequest(request);
+  const limited = rateLimit(`orders:${ip}`, { limit: 15, windowMs: 60 * 1000 });
+  if (!limited.ok) {
+    return NextResponse.json(
+      { message: "Trop de commandes. Reessayez dans un instant." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(limited.retryAfterSec) },
+      },
+    );
+  }
+  return createOrder(request);
 }

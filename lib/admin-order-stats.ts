@@ -105,7 +105,7 @@ export function countInProgressOrders() {
   const inList = "$" + "in";
   return Order.countDocuments({
     $and: [
-      { status: { [inList]: ["paye", "en_attente", "en_preparation"] } },
+      { status: { [inList]: ["paye", "en_attente"] } },
       paidOrdersFilter(),
     ],
   });
@@ -113,6 +113,6 @@ export function countInProgressOrders() {
 
 export function countDeliveredOrders() {
   return Order.countDocuments({
-    $and: [{ status: "livre" }, paidOrdersFilter()],
+    $and: [{ status: "pret" }, paidOrdersFilter()],
   });
 }

@@ -12,11 +12,11 @@ export function CartIndicator() {
   return (
     <Link
       href="/panier"
-      className="relative rounded-full border border-zinc-200 px-3 py-1.5 text-sm font-medium hover:border-zinc-400"
+      className="relative ml-1 rounded-full border border-border bg-surface px-3.5 py-1.5 text-sm font-semibold text-palm transition hover:border-palm/30 hover:bg-palm/5"
     >
       Panier
       {count > 0 ? (
-        <span className="ml-2 rounded-full bg-black px-2 py-0.5 text-xs text-white">
+        <span className="ml-2 rounded-full bg-chili px-2 py-0.5 text-xs text-white">
           {count}
         </span>
       ) : null}

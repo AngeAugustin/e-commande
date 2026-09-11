@@ -1,43 +1,266 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #000000;
+  /* Chez DOSSOU-YOVO — palmier & piment */
+  --background: #e8f2ee;
+  --foreground: #14201b;
+  --surface: #ffffff;
+  --surface-muted: #f3faf6;
+  --palm: #0a3d2e;
+  --palm-deep: #062820;
+  --palm-soft: #1a6b52;
+  --chili: #e0451a;
+  --chili-hover: #c43a14;
+  --saffron: #d4a017;
+  --mist: #c5ddd3;
+  --ink-muted: #4a5c54;
+  --border: #c9ddd4;
+  --ring: #0a3d2e;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
-  --font-title: var(--font-poppins);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-palm: var(--palm);
+  --color-palm-deep: var(--palm-deep);
+  --color-palm-soft: var(--palm-soft);
+  --color-chili: var(--chili);
+  --color-chili-hover: var(--chili-hover);
+  --color-saffron: var(--saffron);
+  --color-mist: var(--mist);
+  --color-ink-muted: var(--ink-muted);
+  --color-border: var(--border);
+  --font-sans: var(--font-body);
+  --font-title: var(--font-display);
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter), sans-serif;
+  font-family: var(--font-body), system-ui, sans-serif;
 }
 
 h1,
 h2,
 h3,
 h4 {
-  font-family: var(--font-poppins), sans-serif;
+  font-family: var(--font-display), Georgia, "Times New Roman", serif;
+  letter-spacing: -0.01em;
 }
 
-.mosaic-bg {
+/* Texture cuisine — grain subtil */
+.kitchen-grain {
   background-image:
-    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
-    radial-gradient(circle at 10% 20%, rgba(0, 0, 0, 0.05), transparent 40%);
-  background-size:
-    20px 20px,
-    20px 20px,
-    100% 100%;
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(224, 69, 26, 0.08), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 90% 80%, rgba(10, 61, 46, 0.1), transparent 45%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+.hero-steam {
+  background:
+    linear-gradient(165deg, var(--palm-deep) 0%, var(--palm) 45%, #0f4f3c 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-steam::before {
+  content: "";
+  position: absolute;
+  inset: -20% -10%;
+  background:
+    radial-gradient(ellipse 40% 60% at 70% 40%, rgba(212, 160, 23, 0.18), transparent 55%),
+    radial-gradient(ellipse 35% 50% at 25% 70%, rgba(224, 69, 26, 0.12), transparent 50%);
+  animation: steam-drift 14s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.hero-steam::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.04) 40%,
+    transparent 55%,
+    rgba(255, 255, 255, 0.06) 70%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: steam-shimmer 9s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes steam-drift {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(-3%, 4%) scale(1.05);
+  }
+}
+
+@keyframes steam-shimmer {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.7s ease-out forwards;
+}
+
+.animate-fade-up-delay {
+  animation: fade-up 0.7s ease-out 0.12s forwards;
+  opacity: 0;
+}
+
+.animate-fade-up-delay-2 {
+  animation: fade-up 0.7s ease-out 0.24s forwards;
+  opacity: 0;
+}
+
+@keyframes hero-ken {
+  from {
+    transform: scale(1.05);
+  }
+  to {
+    transform: scale(1.12);
+  }
+}
+
+.animate-hero-ken {
+  animation: hero-ken 22s ease-out forwards;
+}
+
+@keyframes underline-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.animate-underline-draw {
+  animation: underline-draw 0.9s ease-out 0.45s both;
+}
+
+.comptoir-marquee {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 4%,
+    #000 96%,
+    transparent
+  );
+}
+
+.comptoir-marquee-track {
+  animation: comptoir-marquee 45s linear infinite;
+}
+
+.comptoir-marquee:hover .comptoir-marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes comptoir-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-steam::before,
+  .hero-steam::after,
+  .animate-fade-up,
+  .animate-fade-up-delay,
+  .animate-fade-up-delay-2,
+  .animate-hero-ken,
+  .animate-underline-draw {
+    animation: none;
+  }
+
+  .animate-fade-up-delay,
+  .animate-fade-up-delay-2 {
+    opacity: 1;
+  }
+
+  .animate-hero-ken {
+    transform: none;
+  }
+
+  .comptoir-marquee-track {
+    animation: none;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+    justify-content: center;
+  }
+
+  .comptoir-marquee {
+    mask-image: none;
+    overflow: visible;
+  }
 }
 
 .glass-panel {
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(12px);
+  border: 1px solid rgba(201, 221, 212, 0.8);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(14px);
+}
+
+/* Aperçu ticket — impression */
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 5mm;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #order-receipt-print,
+  #order-receipt-print * {
+    visibility: visible;
+  }
+
+  #order-receipt-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 72mm;
+    max-width: none !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    padding: 4mm !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }

@@ -22,7 +22,7 @@ export const defaultProducts = [
     description: "Poisson entier assaisonne, legumes frais et attieke.",
     price: 7000,
     image:
-      "https://images.unsplash.com/photo-1559847844-d721426d6edc?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=1200&q=80",
     category: "Poissons",
     available: true,
   },
