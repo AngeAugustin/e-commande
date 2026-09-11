@@ -20,7 +20,7 @@ const display = Fraunces({
 export const metadata: Metadata = {
   title: "Chez DOSSOU-YOVO | Commande en ligne",
   description:
-    "Commandez vos plats chez DOSSOU-YOVO — cuisine locale, livraison et retrait rapides.",
+    "Commandez vos plats chez DOSSOU-YOVO — cuisine locale, retrait sur place.",
 };
 
 export default async function RootLayout({

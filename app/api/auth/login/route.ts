@@ -9,6 +9,7 @@ import {
 } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { clientIpFromRequest, rateLimit } from "@/lib/rate-limit";
+import { isStaffRole } from "@/lib/roles";
 import { User } from "@/models/User";
 
 export async function POST(request: Request) {
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
     await connectToDatabase();
 
     const user = await User.findOne({ email });
-    if (!user || user.role !== "admin") {
+    if (!user || !isStaffRole(user.role)) {
       return NextResponse.json(
         { message: "Email ou mot de passe invalide" },
         { status: 401 },
@@ -56,7 +57,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const token = signAdminToken(String(user._id));
+    const token = signAdminToken(String(user._id), user.role);
     const cookieStore = await cookies();
     cookieStore.set(getAuthCookieName(), token, getAuthCookieOptions());
 

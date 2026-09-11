@@ -16,7 +16,7 @@ const STEPS = [
   },
   {
     title: "Validez",
-    text: "Indiquez livraison ou retrait, puis confirmez.",
+    text: "Confirmez votre commande pour un retrait sur place.",
   },
   {
     title: "Dégustez",
@@ -226,41 +226,25 @@ export default async function Home() {
         )}
       </section>
 
-      {/* —— Livraison / Retrait —— */}
-      <section className="mx-auto grid max-w-6xl gap-4 px-5 py-16 sm:grid-cols-2 sm:gap-5 sm:px-8 sm:py-20">
+      {/* —— Retrait —— */}
+      <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
         <Link
           href="/menu"
-          className="group relative overflow-hidden rounded-3xl bg-palm px-7 py-10 text-white transition hover:bg-palm-soft"
+          className="group relative flex flex-col overflow-hidden rounded-3xl border border-border bg-surface px-7 py-10 transition hover:border-palm/30 hover:bg-surface-muted sm:flex-row sm:items-end sm:justify-between sm:gap-8"
         >
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/60">
-            Service
-          </p>
-          <h2 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-bold sm:text-4xl">
-            Livraison
-          </h2>
-          <p className="mt-3 max-w-xs text-sm leading-relaxed text-white/75">
-            Commandez, payez, on vous apporte le repas chaud.
-          </p>
-          <span className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-chili transition group-hover:gap-3">
-            Commander
-            <span aria-hidden>→</span>
-          </span>
-        </Link>
-
-        <Link
-          href="/menu"
-          className="group relative overflow-hidden rounded-3xl border border-border bg-surface px-7 py-10 transition hover:border-palm/30 hover:bg-surface-muted"
-        >
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-chili">
-            Sur place
-          </p>
-          <h2 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-bold text-palm sm:text-4xl">
-            Retrait
-          </h2>
-          <p className="mt-3 max-w-xs text-sm leading-relaxed text-ink-muted">
-            Passez chercher votre commande dès qu&apos;elle est prête.
-          </p>
-          <span className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-chili transition group-hover:gap-3">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-chili">
+              Sur place
+            </p>
+            <h2 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-bold text-palm sm:text-4xl">
+              Retrait au restaurant
+            </h2>
+            <p className="mt-3 max-w-md text-sm leading-relaxed text-ink-muted">
+              Commandez, payez par MoMo, puis passez chercher votre repas dès qu&apos;il est
+              prêt.
+            </p>
+          </div>
+          <span className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-chili transition group-hover:gap-3 sm:mt-0">
             Commander
             <span aria-hidden>→</span>
           </span>

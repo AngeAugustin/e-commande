@@ -1,8 +1,11 @@
 import jwt, { type JwtPayload } from "jsonwebtoken";
 
+import { isStaffRole } from "@/lib/roles";
+import type { StaffRole } from "@/types";
+
 export interface AdminTokenPayload extends JwtPayload {
   userId: string;
-  role: "admin";
+  role: StaffRole;
 }
 
 export function getJwtSecret(): string {
@@ -13,18 +16,14 @@ export function getJwtSecret(): string {
   return secret;
 }
 
-export function signAdminToken(userId: string) {
-  return jwt.sign({ userId, role: "admin" }, getJwtSecret(), { expiresIn: "7d" });
+export function signAdminToken(userId: string, role: StaffRole) {
+  return jwt.sign({ userId, role }, getJwtSecret(), { expiresIn: "7d" });
 }
 
 export function verifyAdminToken(token: string): AdminTokenPayload | null {
   try {
     const payload = jwt.verify(token, getJwtSecret()) as JwtPayload;
-    if (
-      typeof payload.userId !== "string" ||
-      !payload.userId ||
-      payload.role !== "admin"
-    ) {
+    if (typeof payload.userId !== "string" || !payload.userId || !isStaffRole(payload.role)) {
       return null;
     }
     return payload as AdminTokenPayload;

@@ -4,6 +4,9 @@ export type OrderStatus = "en_attente" | "paye" | "pret";
 
 export type OrderPaymentStatus = "pending" | "paid" | "failed";
 
+/** Accès back-office. super_admin : tout ; admin : tout sauf suppression de commandes. */
+export type StaffRole = "super_admin" | "admin";
+
 export interface CartItem {
   productId: string;
   name: string;

@@ -1,13 +1,21 @@
 import { NextResponse } from "next/server";
 
-import { ensureAdminApi } from "@/lib/api-guard";
+import { requireStaffApi } from "@/lib/api-guard";
 import { hashPassword } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
+import { isSuperAdmin, parseStaffRole } from "@/lib/roles";
 import { User } from "@/models/User";
+import type { StaffRole } from "@/types";
 
 export async function GET() {
-  const unauthorized = await ensureAdminApi();
-  if (unauthorized) return unauthorized;
+  const auth = await requireStaffApi();
+  if (!auth.ok) return auth.response;
+  if (!isSuperAdmin(auth.session.role)) {
+    return NextResponse.json(
+      { message: "Action reservee au super admin" },
+      { status: 403 },
+    );
+  }
 
   try {
     await connectToDatabase();
@@ -19,8 +27,14 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const unauthorized = await ensureAdminApi();
-  if (unauthorized) return unauthorized;
+  const auth = await requireStaffApi();
+  if (!auth.ok) return auth.response;
+  if (!isSuperAdmin(auth.session.role)) {
+    return NextResponse.json(
+      { message: "Action reservee au super admin" },
+      { status: 403 },
+    );
+  }
 
   try {
     const body = await request.json();
@@ -28,7 +42,12 @@ export async function POST(request: Request) {
     const lastName = String(body.lastName || "").trim();
     const email = String(body.email || "").trim().toLowerCase();
     const password = String(body.password || "");
-    const role = "admin";
+    let role: StaffRole = parseStaffRole(body.role, "admin");
+
+    // Seul un super_admin peut creer un autre super_admin.
+    if (role === "super_admin" && !isSuperAdmin(auth.session.role)) {
+      role = "admin";
+    }
 
     if (!firstName || !lastName || !email) {
       return NextResponse.json(

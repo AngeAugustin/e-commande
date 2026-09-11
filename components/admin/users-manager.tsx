@@ -6,6 +6,8 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ROLE_LABELS, isSuperAdmin } from "@/lib/roles";
+import type { StaffRole } from "@/types";
 
 type UserRow = {
   _id: string;
@@ -21,15 +23,17 @@ const initialForm = {
   lastName: "",
   email: "",
   password: "",
-  role: "ADMIN",
+  role: "admin" as StaffRole,
 };
 
 export function UsersManager({
   initialUsers,
   currentUserId,
+  currentUserRole,
 }: {
   initialUsers: UserRow[];
   currentUserId: string;
+  currentUserRole: StaffRole;
 }) {
   const [users, setUsers] = useState<UserRow[]>(initialUsers);
   const [form, setForm] = useState(initialForm);
@@ -39,6 +43,8 @@ export function UsersManager({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<UserRow | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  const canAssignSuper = isSuperAdmin(currentUserRole);
 
   async function loadUsers() {
     const res = await fetch("/api/users");
@@ -52,10 +58,19 @@ export function UsersManager({
 
     const method = editingId ? "PUT" : "POST";
     const endpoint = editingId ? `/api/users/${editingId}` : "/api/users";
+    const payload = editingId
+      ? {
+          firstName: form.firstName,
+          lastName: form.lastName,
+          email: form.email,
+          role: form.role,
+        }
+      : form;
+
     const res = await fetch(endpoint, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify(payload),
     });
     const data = await res.json();
     setSaving(false);
@@ -65,12 +80,7 @@ export function UsersManager({
       return;
     }
 
-    if (editingId) {
-      toast.success("Utilisateur modifie");
-    } else {
-      toast.success("Utilisateur cree");
-    }
-
+    toast.success(editingId ? "Utilisateur modifie" : "Utilisateur cree");
     setForm(initialForm);
     setEditingId(null);
     setOpenModal(false);
@@ -96,8 +106,8 @@ export function UsersManager({
 
   const stats = useMemo(() => {
     const total = users.length;
+    const supers = users.filter((user) => user.role === "super_admin").length;
     const admins = users.filter((user) => user.role === "admin").length;
-    const withName = users.filter((user) => user.firstName || user.lastName).length;
     const recent = users.filter((user) => {
       if (!user.createdAt) return false;
       const createdAt = new Date(user.createdAt).getTime();
@@ -105,11 +115,16 @@ export function UsersManager({
     }).length;
     return [
       { label: "Total utilisateurs", value: String(total) },
+      { label: "Super admins", value: String(supers) },
       { label: "Admins", value: String(admins) },
-      { label: "Profils complets", value: String(withName) },
       { label: "Nouveaux (7 jours)", value: String(recent) },
     ];
   }, [users, referenceNow]);
+
+  function roleLabel(role: string) {
+    if (role === "super_admin" || role === "admin") return ROLE_LABELS[role];
+    return role;
+  }
 
   return (
     <section className="space-y-5">
@@ -117,7 +132,7 @@ export function UsersManager({
         <div>
           <h1 className="text-3xl font-bold text-palm">Utilisateurs</h1>
           <p className="text-sm text-ink-muted">
-            Creez et suivez les comptes admin du restaurant.
+            Super admin et admin : meme acces, sauf suppression des commandes (super admin).
           </p>
         </div>
         <Button
@@ -161,8 +176,8 @@ export function UsersManager({
                   </td>
                   <td className="px-4 py-3">{user.email}</td>
                   <td className="px-4 py-3">
-                    <span className="rounded-full bg-surface-muted px-2 py-1 text-xs font-semibold uppercase text-foreground">
-                      {user.role}
+                    <span className="rounded-full bg-surface-muted px-2 py-1 text-xs font-semibold text-foreground">
+                      {roleLabel(user.role)}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -184,7 +199,7 @@ export function UsersManager({
                             lastName: user.lastName || "",
                             email: user.email,
                             password: "",
-                            role: "ADMIN",
+                            role: user.role === "super_admin" ? "super_admin" : "admin",
                           });
                           setOpenModal(true);
                         }}
@@ -246,7 +261,7 @@ export function UsersManager({
             </h2>
             <p className="mb-4 text-sm text-ink-muted">
               {editingId
-                ? "Mettez a jour les informations de cet administrateur."
+                ? "Mettez a jour les informations et le role."
                 : "Renseignez les informations et un mot de passe fort (min 10 caracteres)."}
             </p>
 
@@ -283,7 +298,26 @@ export function UsersManager({
                   onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
                 />
               ) : null}
-              <Input required className="sm:col-span-2" value={form.role} disabled />
+
+              <label className="sm:col-span-2 space-y-1 text-sm">
+                <span className="font-medium text-ink-muted">Role</span>
+                <select
+                  className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-foreground outline-none focus:border-palm"
+                  value={form.role}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      role: e.target.value === "super_admin" ? "super_admin" : "admin",
+                    }))
+                  }
+                  disabled={!canAssignSuper && form.role !== "super_admin"}
+                >
+                  <option value="admin">{ROLE_LABELS.admin}</option>
+                  {(canAssignSuper || form.role === "super_admin") && (
+                    <option value="super_admin">{ROLE_LABELS.super_admin}</option>
+                  )}
+                </select>
+              </label>
 
               <div className="flex gap-2 sm:col-span-2 sm:justify-end">
                 <Button

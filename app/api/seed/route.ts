@@ -73,12 +73,12 @@ export async function POST(request: Request) {
         lastName: "Principal",
         email,
         password: await hashPassword(adminPassword),
-        role: "admin",
+        role: "super_admin",
       });
       adminAction = "created";
     } else if (resetAdmin) {
       existingAdmin.password = await hashPassword(adminPassword);
-      existingAdmin.role = "admin";
+      existingAdmin.role = "super_admin";
       await existingAdmin.save();
       adminAction = "password_reset";
     }

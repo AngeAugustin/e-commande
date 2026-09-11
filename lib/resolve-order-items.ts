@@ -58,15 +58,6 @@ export async function resolveOrderFromRequestBody(
     return { ok: false, message: "Informations client trop longues" };
   }
 
-  const deliveryType = body.deliveryType;
-  if (deliveryType !== "livraison" && deliveryType !== "retrait") {
-    return { ok: false, message: "Type de livraison invalide" };
-  }
-
-  if (deliveryType === "livraison" && !address) {
-    return { ok: false, message: "Adresse de livraison obligatoire" };
-  }
-
   const quantityByProductId = new Map<string, number>();
   for (const line of rawItems as RawCartLine[]) {
     const productId = String(line.productId ?? "").trim();
@@ -134,8 +125,8 @@ export async function resolveOrderFromRequestBody(
     data: {
       items,
       total,
-      deliveryType,
-      customerInfo: { name, phone, address },
+      deliveryType: "retrait",
+      customerInfo: { name, phone, address: "" },
     },
   };
 }

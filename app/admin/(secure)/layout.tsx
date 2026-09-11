@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { getAdminFromCookie } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
+import { isStaffRole } from "@/lib/roles";
 import { User } from "@/models/User";
 
 export default async function SecureAdminLayout({
@@ -18,7 +19,7 @@ export default async function SecureAdminLayout({
 
   await connectToDatabase();
   const user = await User.findById(admin.userId).lean();
-  if (!user || user.role !== "admin") {
+  if (!user || !isStaffRole(user.role)) {
     redirect("/admin/login");
   }
 

@@ -5,16 +5,17 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { ROLE_LABELS, canManageUsers, isStaffRole } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 
-const links = [
+const allLinks = [
   { href: "/admin", label: "Dashboard", icon: "dashboard" },
   { href: "/admin/produits", label: "Produits", icon: "products" },
   { href: "/admin/commandes", label: "Commandes", icon: "orders" },
-  { href: "/admin/utilisateurs", label: "Utilisateurs", icon: "users" },
+  { href: "/admin/utilisateurs", label: "Utilisateurs", icon: "users", superOnly: true },
 ] as const;
 
-function NavIcon({ type }: { type: (typeof links)[number]["icon"] }) {
+function NavIcon({ type }: { type: (typeof allLinks)[number]["icon"] }) {
   if (type === "dashboard") {
     return (
       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -81,6 +82,9 @@ export function AdminSidebar({
   const router = useRouter();
   const [openModal, setOpenModal] = useState(false);
   const initials = adminEmail.slice(0, 2).toUpperCase();
+  const links = allLinks.filter(
+    (link) => !("superOnly" in link && link.superOnly) || canManageUsers(adminRole),
+  );
   const isLinkActive = (href: string) =>
     href === "/admin" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
 
@@ -187,13 +191,20 @@ export function AdminSidebar({
           </span>
           <span className="min-w-0">
             <span className="block truncate text-sm font-semibold text-foreground">{adminEmail}</span>
-            <span className="block text-xs text-ink-muted">{adminRole}</span>
+            <span className="block text-xs text-ink-muted">
+              {isStaffRole(adminRole) ? ROLE_LABELS[adminRole] : adminRole}
+            </span>
           </span>
         </button>
       </aside>
 
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-surface/95 backdrop-blur lg:hidden">
-        <div className="grid grid-cols-4 gap-1 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2">
+        <div
+          className={cn(
+            "grid gap-1 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2",
+            links.length === 4 ? "grid-cols-4" : "grid-cols-3",
+          )}
+        >
           {links.map((link) => (
             <Link
               key={link.href}

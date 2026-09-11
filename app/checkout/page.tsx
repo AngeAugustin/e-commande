@@ -12,10 +12,9 @@ import { getCartTotal, useCartStore } from "@/store/cart-store";
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, deliveryType, setDeliveryType, clearCart } = useCartStore((state) => state);
+  const { items, clearCart } = useCartStore((state) => state);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const total = useMemo(() => getCartTotal(items), [items]);
@@ -25,10 +24,6 @@ export default function CheckoutPage() {
     setSubmitError(null);
     if (!items.length) {
       toast.error("Panier vide");
-      return;
-    }
-    if (deliveryType === "livraison" && !address.trim()) {
-      toast.error("Veuillez saisir votre adresse de livraison");
       return;
     }
 
@@ -41,8 +36,8 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           items,
           total,
-          deliveryType,
-          customerInfo: { name, phone, address: address.trim() },
+          deliveryType: "retrait",
+          customerInfo: { name, phone, address: "" },
         }),
       });
 
@@ -88,9 +83,13 @@ export default function CheckoutPage() {
       <Card className="space-y-4">
         <h1 className="text-2xl font-extrabold text-palm">Valider la commande</h1>
         <p className="text-sm text-ink-muted">
-          Après validation, vous recevrez le code de votre commande et les instructions pour payer
-          par dépôt Mobile Money, puis confirmer par WhatsApp.
+          Retrait sur place uniquement. Après validation, vous recevrez le code et les
+          instructions pour payer par dépôt Mobile Money, puis confirmer par WhatsApp.
         </p>
+
+        <div className="rounded-xl border border-palm/20 bg-palm/5 px-3 py-2.5 text-sm text-palm">
+          <span className="font-semibold">Mode :</span> Retrait au restaurant
+        </div>
 
         <form className="space-y-3" onSubmit={handleSubmit}>
           <Input
@@ -105,33 +104,6 @@ export default function CheckoutPage() {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              type="button"
-              variant={deliveryType === "livraison" ? "primary" : "secondary"}
-              onClick={() => setDeliveryType("livraison")}
-            >
-              Livraison
-            </Button>
-            <Button
-              type="button"
-              variant={deliveryType === "retrait" ? "primary" : "secondary"}
-              onClick={() => {
-                setDeliveryType("retrait");
-                setAddress("");
-              }}
-            >
-              Retrait sur place
-            </Button>
-          </div>
-          {deliveryType === "livraison" ? (
-            <Input
-              required
-              placeholder="Adresse de livraison"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-            />
-          ) : null}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Validation..." : "Valider la commande"}
           </Button>

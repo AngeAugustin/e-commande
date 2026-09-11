@@ -19,7 +19,7 @@ export const useCartStore = create<CartStore>()(
   persist(
     (set) => ({
       items: [],
-      deliveryType: "livraison",
+      deliveryType: "retrait",
       addItem: (item) =>
         set((state) => {
           const existing = state.items.find((it) => it.productId === item.productId);
@@ -52,14 +52,23 @@ export const useCartStore = create<CartStore>()(
                 ),
         })),
       clearCart: () => set({ items: [] }),
-      setDeliveryType: (deliveryType) => set({ deliveryType }),
+      setDeliveryType: () => set({ deliveryType: "retrait" }),
     }),
     {
       name: "ilosiwaju-cart",
       partialize: (state) => ({
         items: state.items,
-        deliveryType: state.deliveryType,
+        deliveryType: "retrait" as const,
       }),
+      merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Partial<CartStore>;
+        return {
+          ...current,
+          ...p,
+          deliveryType: "retrait",
+          items: Array.isArray(p.items) ? p.items : current.items,
+        };
+      },
     },
   ),
 );

@@ -7,8 +7,8 @@ export const COMMANDE_TRACKING_STEP_IDS = ["paye", "pret"] as const;
 export type CommandeTrackingStepId = (typeof COMMANDE_TRACKING_STEP_IDS)[number];
 
 export const COMMANDE_TRACKING_LABELS: Record<CommandeTrackingStepId, string> = {
-  paye: "Payé",
-  pret: "Pret",
+  paye: "Paiement confirme",
+  pret: "Pret a recuperer",
 };
 
 /**
@@ -31,4 +31,18 @@ export function getCommandeTrackingStepIndex(
     default:
       return 0;
   }
+}
+
+/** Badge affiché à côté du code commande (suivi client). */
+export function getCommandeStatusBadge(
+  orderStatus: OrderStatus,
+  paymentStatus?: OrderPaymentStatus | string | null,
+): { label: string; tone: "pending" | "paid" | "ready" } {
+  if (orderStatus === "pret") {
+    return { label: "Pret a recuperer", tone: "ready" };
+  }
+  if (isOrderPaid(paymentStatus) || orderStatus === "paye") {
+    return { label: "Payé", tone: "paid" };
+  }
+  return { label: "Attente paiement", tone: "pending" };
 }

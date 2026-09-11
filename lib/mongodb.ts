@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+import { migrateLegacyAdminRoles } from "@/lib/migrate-roles";
+
 const MONGODB_URI = process.env.MONGODB_URI;
 
 type MongooseCache = {
@@ -26,6 +28,7 @@ export async function connectToDatabase() {
   }
 
   if (cached.conn) {
+    await migrateLegacyAdminRoles();
     return cached.conn;
   }
 
@@ -34,5 +37,6 @@ export async function connectToDatabase() {
   }
 
   cached.conn = await cached.promise;
+  await migrateLegacyAdminRoles();
   return cached.conn;
 }
