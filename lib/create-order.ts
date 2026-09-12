@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { resolveMomoPayment } from "@/lib/contact";
 import { generateOrderCode } from "@/lib/utils";
 import { connectToDatabase } from "@/lib/mongodb";
 import { resolveOrderFromRequestBody } from "@/lib/resolve-order-items";
@@ -25,6 +26,11 @@ export async function createOrder(request: Request): Promise<NextResponse> {
       return NextResponse.json({ message: resolved.message }, { status: 400 });
     }
 
+    const momo = await resolveMomoPayment(body.momoNetwork);
+    if (!momo.ok) {
+      return NextResponse.json({ message: momo.message }, { status: 400 });
+    }
+
     const { items, total, deliveryType, customerInfo } = resolved.data;
     const orderCode = generateOrderCode();
 
@@ -34,12 +40,13 @@ export async function createOrder(request: Request): Promise<NextResponse> {
       deliveryType,
       customerInfo,
       orderCode,
+      momoPayment: momo.data,
       status: "en_attente" as const,
       paymentStatus: "pending" as const,
     });
 
     return NextResponse.json(
-      { orderCode, total },
+      { orderCode, total, momoPayment: momo.data },
       {
         status: 201,
         headers: { "Cache-Control": "no-store" },

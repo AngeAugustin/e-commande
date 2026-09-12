@@ -412,6 +412,36 @@ export function ProductsManager({
                   <p className="text-xs text-ink-muted">Apercu image</p>
                 )}
               </div>
+
+              <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-border bg-surface-muted/50 px-3 py-3 sm:col-span-2">
+                <span>
+                  <span className="block text-sm font-semibold text-foreground">
+                    Disponible a la commande
+                  </span>
+                  <span className="block text-xs text-ink-muted">
+                    Si desactive, le plat n&apos;apparait plus dans le menu client.
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={form.available}
+                  onClick={() =>
+                    setForm((prev) => ({ ...prev, available: !prev.available }))
+                  }
+                  className={`relative h-7 w-12 shrink-0 rounded-full transition ${
+                    form.available ? "bg-palm" : "bg-border"
+                  }`}
+                >
+                  <span
+                    aria-hidden
+                    className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition ${
+                      form.available ? "left-[1.35rem]" : "left-0.5"
+                    }`}
+                  />
+                </button>
+              </label>
+
               <div className="flex gap-2 sm:col-span-2 sm:justify-end">
                 <Button
                   type="button"

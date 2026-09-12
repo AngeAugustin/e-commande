@@ -123,8 +123,47 @@ h4 {
   }
 }
 
+@keyframes ticket-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) rotate(-0.6deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
 .animate-fade-up {
   animation: fade-up 0.7s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .order-ticket {
+    animation: none !important;
+  }
+}
+
+.order-ticket {
+  animation: ticket-in 0.55s ease-out;
+}
+
+.ticket-perf {
+  height: 12px;
+  background-color: #fffdf8;
+  background-image: radial-gradient(circle, var(--background) 5.5px, transparent 6px);
+  background-size: 14px 12px;
+  background-repeat: repeat-x;
+}
+
+.ticket-perf--top {
+  background-position: 7px -6px;
+  margin-bottom: -1px;
+}
+
+.ticket-perf--bottom {
+  background-position: 7px 6px;
+  margin-top: -1px;
 }
 
 .animate-fade-up-delay {
@@ -163,31 +202,76 @@ h4 {
   animation: underline-draw 0.9s ease-out 0.45s both;
 }
 
-.comptoir-marquee {
+.passe-plat {
   mask-image: linear-gradient(
     to right,
     transparent,
-    #000 4%,
-    #000 96%,
+    #000 3%,
+    #000 97%,
     transparent
   );
 }
 
-.comptoir-marquee-track {
-  animation: comptoir-marquee 45s linear infinite;
+.passe-plat-track {
+  animation: passe-plat 50s linear infinite;
 }
 
-.comptoir-marquee:hover .comptoir-marquee-track {
+.passe-plat:hover .passe-plat-track {
   animation-play-state: paused;
 }
 
-@keyframes comptoir-marquee {
+@keyframes passe-plat {
   from {
     transform: translateX(0);
   }
   to {
     transform: translateX(-50%);
   }
+}
+
+.film-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  mix-blend-mode: overlay;
+}
+
+.hero-mosaic {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 1px;
+  height: 100%;
+  background: rgba(197, 221, 211, 0.12);
+}
+
+.hero-mosaic-cell {
+  background: rgba(6, 40, 32, 0.92);
+}
+
+@media (min-width: 768px) {
+  .hero-mosaic {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+  }
+}
+
+@keyframes scroll-line {
+  0% {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  30% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 0.25;
+  }
+}
+
+.animate-scroll-line {
+  animation: scroll-line 2.2s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -197,7 +281,8 @@ h4 {
   .animate-fade-up-delay,
   .animate-fade-up-delay-2,
   .animate-hero-ken,
-  .animate-underline-draw {
+  .animate-underline-draw,
+  .animate-scroll-line {
     animation: none;
   }
 
@@ -210,7 +295,11 @@ h4 {
     transform: none;
   }
 
-  .comptoir-marquee-track {
+  .animate-scroll-line {
+    opacity: 0.4;
+  }
+
+  .passe-plat-track {
     animation: none;
     flex-wrap: wrap;
     width: 100%;
@@ -220,7 +309,7 @@ h4 {
     justify-content: center;
   }
 
-  .comptoir-marquee {
+  .passe-plat {
     mask-image: none;
     overflow: visible;
   }

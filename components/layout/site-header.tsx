@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { CartIndicator } from "@/components/layout/cart-indicator";
-import { getWhatsAppHref } from "@/lib/contact";
 import { useCartStore } from "@/store/cart-store";
 
 const links = [
@@ -13,13 +13,12 @@ const links = [
   { href: "/suivi", label: "Suivi" },
 ];
 
-const whatsappHref = getWhatsAppHref();
-
-export function SiteHeader() {
+export function SiteHeader({ whatsappHref }: { whatsappHref: string }) {
   const pathname = usePathname();
   const count = useCartStore((state) =>
     state.items.reduce((acc, item) => acc + item.quantity, 0),
   );
+  const [scrolled, setScrolled] = useState(false);
 
   const mobileLinks = [
     { href: "/", label: "Accueil" },
@@ -28,16 +27,46 @@ export function SiteHeader() {
     { href: "/panier", label: "Panier" },
   ];
 
+  const isHome = pathname === "/";
+  const overlay = isHome && !scrolled;
+
+  useEffect(() => {
+    if (!isHome) {
+      setScrolled(false);
+      return;
+    }
+
+    const onScroll = () => {
+      setScrolled(window.scrollY > window.innerHeight * 0.72);
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isHome]);
+
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-border/60 bg-surface/90 backdrop-blur-md">
+      <header
+        className={`sticky top-0 z-30 transition-[background-color,border-color,box-shadow] duration-300 ${
+          overlay
+            ? "border-b border-white/10 bg-palm-deep/35 backdrop-blur-md"
+            : "border-b border-border/60 bg-surface/92 shadow-[0_1px_0_rgba(10,61,46,0.04)] backdrop-blur-md"
+        }`}
+      >
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3">
           <Link
             href="/"
-            className="font-[family-name:var(--font-display)] text-lg font-extrabold tracking-tight text-palm"
+            className={`font-[family-name:var(--font-display)] text-lg font-extrabold tracking-tight ${
+              overlay ? "text-white" : "text-palm"
+            }`}
           >
             <span className="inline-flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-palm text-white">
+              <span
+                className={`flex h-8 w-8 items-center justify-center rounded-full text-white ${
+                  overlay ? "bg-chili" : "bg-palm"
+                }`}
+              >
                 <svg
                   aria-hidden="true"
                   viewBox="0 0 24 24"
@@ -70,9 +99,13 @@ export function SiteHeader() {
                   key={link.href}
                   href={link.href}
                   className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
-                    isActive
-                      ? "bg-palm text-white"
-                      : "text-ink-muted hover:bg-palm/8 hover:text-palm"
+                    overlay
+                      ? isActive
+                        ? "bg-white text-palm"
+                        : "text-white/75 hover:bg-white/10 hover:text-white"
+                      : isActive
+                        ? "bg-palm text-white"
+                        : "text-ink-muted hover:bg-palm/8 hover:text-palm"
                   }`}
                 >
                   {link.label}
@@ -84,7 +117,11 @@ export function SiteHeader() {
               target="_blank"
               rel="noreferrer"
               aria-label="Contacter le restaurant sur WhatsApp"
-              className="ml-1 inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-[#25D366] transition hover:border-[#25D366]/40 hover:bg-[#25D366]/10"
+              className={`ml-1 inline-flex h-9 w-9 items-center justify-center rounded-full text-[#25D366] transition ${
+                overlay
+                  ? "border border-white/20 hover:border-[#25D366]/50 hover:bg-[#25D366]/15"
+                  : "border border-border hover:border-[#25D366]/40 hover:bg-[#25D366]/10"
+              }`}
             >
               <svg
                 aria-hidden="true"
@@ -95,7 +132,7 @@ export function SiteHeader() {
                 <path d="M20.52 3.48A11.88 11.88 0 0 0 12.04 0C5.47 0 .12 5.34.12 11.9c0 2.1.55 4.16 1.6 5.97L0 24l6.32-1.66a11.84 11.84 0 0 0 5.72 1.46h.01c6.57 0 11.92-5.35 11.92-11.9 0-3.18-1.24-6.16-3.45-8.42ZM12.05 21.8h-.01a9.86 9.86 0 0 1-5.03-1.38l-.36-.21-3.75.98 1-3.65-.23-.37a9.9 9.9 0 0 1-1.52-5.27c0-5.47 4.45-9.91 9.92-9.91 2.65 0 5.15 1.03 7.02 2.9a9.84 9.84 0 0 1 2.9 7 9.92 9.92 0 0 1-9.94 9.91Zm5.44-7.4c-.3-.15-1.78-.88-2.06-.98-.28-.1-.48-.15-.68.15-.2.3-.78.97-.96 1.16-.18.2-.35.22-.65.08-.3-.15-1.27-.47-2.42-1.5-.9-.8-1.5-1.78-1.68-2.08-.18-.3-.02-.46.13-.6.13-.13.3-.35.45-.53.15-.17.2-.3.3-.5.1-.2.05-.38-.02-.53-.08-.15-.68-1.64-.94-2.24-.25-.6-.5-.5-.68-.5h-.58c-.2 0-.53.07-.8.37-.28.3-1.06 1.03-1.06 2.5 0 1.48 1.08 2.9 1.23 3.1.15.2 2.12 3.23 5.14 4.54.72.31 1.28.5 1.72.63.72.23 1.38.2 1.9.12.58-.09 1.78-.73 2.03-1.43.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35Z" />
               </svg>
             </Link>
-            <CartIndicator />
+            <CartIndicator tone={overlay ? "dark" : "light"} />
           </nav>
 
           <Link
@@ -103,7 +140,11 @@ export function SiteHeader() {
             target="_blank"
             rel="noreferrer"
             aria-label="Contacter le restaurant sur WhatsApp"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-[#25D366] transition hover:border-[#25D366]/40 hover:bg-[#25D366]/10 md:hidden"
+            className={`inline-flex h-9 w-9 items-center justify-center rounded-full text-[#25D366] transition md:hidden ${
+              overlay
+                ? "border border-white/20 hover:border-[#25D366]/50 hover:bg-[#25D366]/15"
+                : "border border-border hover:border-[#25D366]/40 hover:bg-[#25D366]/10"
+            }`}
           >
             <svg
               aria-hidden="true"

@@ -27,6 +27,11 @@ const orderSchema = new Schema(
       address: { type: String, default: "" },
     },
     orderCode: { type: String, required: true, unique: true },
+    /** Numéro MoMo choisi par le client pour le dépôt. */
+    momoPayment: {
+      network: { type: String, enum: ["MTN", "Moov"] },
+      number: { type: String, trim: true },
+    },
     paymentStatus: {
       type: String,
       enum: ["pending", "paid", "failed"],

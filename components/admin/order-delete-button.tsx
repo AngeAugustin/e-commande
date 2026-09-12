@@ -12,12 +12,15 @@ type OrderDeleteButtonProps = {
   orderCode: string;
   /** Redirection apres suppression (ex. retour liste depuis la fiche). */
   redirectTo?: string;
+  /** Affiche un bouton texte (fiche detail) au lieu de l'icone seule. */
+  labeled?: boolean;
 };
 
 export function OrderDeleteButton({
   orderId,
   orderCode,
   redirectTo,
+  labeled = false,
 }: OrderDeleteButtonProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -46,29 +49,35 @@ export function OrderDeleteButton({
 
   return (
     <>
-      <button
-        type="button"
-        className="text-red-600 transition hover:text-red-700"
-        title="Supprimer la commande"
-        aria-label={`Supprimer la commande ${orderCode}`}
-        onClick={() => setOpen(true)}
-      >
-        <svg
-          viewBox="0 0 24 24"
-          className="h-4 w-4"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+      {labeled ? (
+        <Button type="button" variant="danger" onClick={() => setOpen(true)}>
+          Supprimer
+        </Button>
+      ) : (
+        <button
+          type="button"
+          className="text-red-600 transition hover:text-red-700"
+          title="Supprimer la commande"
+          aria-label={`Supprimer la commande ${orderCode}`}
+          onClick={() => setOpen(true)}
         >
-          <path d="M4 7h16" />
-          <path d="M10 11v6" />
-          <path d="M14 11v6" />
-          <path d="M6 7v11a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7" />
-          <path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-        </svg>
-      </button>
+          <svg
+            viewBox="0 0 24 24"
+            className="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M4 7h16" />
+            <path d="M10 11v6" />
+            <path d="M14 11v6" />
+            <path d="M6 7v11a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7" />
+            <path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+          </svg>
+        </button>
+      )}
 
       {open ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-palm-deep/45 p-4">

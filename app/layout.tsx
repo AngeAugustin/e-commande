@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import "./globals.css";
 import { RootShell } from "@/components/layout/root-shell";
 import { ToastProvider } from "@/components/providers/toast-provider";
+import { getWhatsAppHref } from "@/lib/contact";
 
 const body = Plus_Jakarta_Sans({
   variable: "--font-body",
@@ -30,6 +31,7 @@ export default async function RootLayout({
 }>) {
   // Required for per-request CSP nonces (Next applies nonce from CSP header).
   await connection();
+  const whatsappHref = await getWhatsAppHref();
 
   return (
     <html
@@ -37,7 +39,7 @@ export default async function RootLayout({
       className={`${body.variable} ${display.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
-        <RootShell>{children}</RootShell>
+        <RootShell whatsappHref={whatsappHref}>{children}</RootShell>
         <ToastProvider />
       </body>
     </html>

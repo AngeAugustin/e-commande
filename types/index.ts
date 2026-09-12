@@ -26,6 +26,23 @@ export interface ProductDto {
   createdAt?: string;
 }
 
+export type ContactNumberKind = "momo" | "whatsapp";
+
+export type MomoNetwork = "MTN" | "Moov";
+
+export interface ContactNumberDto {
+  _id: string;
+  kind: ContactNumberKind;
+  number: string;
+  network?: MomoNetwork;
+  createdAt?: string;
+}
+
+export interface MomoPaymentInfo {
+  network: MomoNetwork;
+  number: string;
+}
+
 export interface OrderDto {
   _id: string;
   items: CartItem[];
@@ -38,6 +55,7 @@ export interface OrderDto {
     address?: string;
   };
   orderCode: string;
+  momoPayment?: MomoPaymentInfo;
   paymentStatus?: OrderPaymentStatus;
   paidAt?: string;
   createdAt: string;

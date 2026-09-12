@@ -4,13 +4,10 @@ import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
-import { ORDER_STATUS_LABELS } from "@/lib/constants";
+import { getCommandeStatusBadge } from "@/lib/commande-tracking";
 import { exportElementToPdf } from "@/lib/receipt-pdf";
 import { formatDateTime, formatPrice } from "@/lib/utils";
 import type { DeliveryType, OrderStatus } from "@/types";
-
-const BRAND_NAME = "Chez DOSSOU-YOVO";
-const VENUE_LINE = "Cuisine locale";
 
 export type OrderReceiptData = {
   orderCode: string;
@@ -37,9 +34,23 @@ type OrderReceiptPreviewProps = {
   showActions?: boolean;
 };
 
+function TicketPerforation({ side }: { side: "top" | "bottom" }) {
+  return (
+    <div
+      aria-hidden
+      className={`ticket-perf ${side === "top" ? "ticket-perf--top" : "ticket-perf--bottom"}`}
+    />
+  );
+}
+
 export function OrderReceiptPreview({ order, showActions = true }: OrderReceiptPreviewProps) {
   const receiptRef = useRef<HTMLDivElement>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const statusBadge = getCommandeStatusBadge(order.status, order.paymentStatus);
+  const serviceLabel =
+    order.deliveryType === "livraison"
+      ? order.customerInfo.address || "Livraison"
+      : "Retrait sur place";
 
   async function handleDownloadPdf() {
     const el = receiptRef.current;
@@ -62,7 +73,7 @@ export function OrderReceiptPreview({ order, showActions = true }: OrderReceiptP
     <div className="w-full">
       {showActions ? (
         <div className="mb-4 flex items-center justify-between gap-3">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-400">
+          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-muted">
             Apercu ticket
           </span>
           <div className="flex shrink-0 items-center gap-2">
@@ -121,100 +132,126 @@ export function OrderReceiptPreview({ order, showActions = true }: OrderReceiptP
         </div>
       ) : null}
 
-      <div
-        ref={receiptRef}
-        id="order-receipt-print"
-        className="mx-auto w-full max-w-[300px] rounded-sm border border-[#D4D0C8] bg-[#FFFCF7] px-4 py-5 shadow-[0_2px_12px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)]"
-        style={{
-          fontFamily: 'ui-monospace, "Cascadia Code", "Segoe UI Mono", Consolas, monospace',
-        }}
-      >
-        <div className="text-center">
-          <p className="text-[14px] font-extrabold leading-tight text-[#0D0D0D]">{BRAND_NAME}</p>
-          <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#6B7280]">
-            {VENUE_LINE}
-          </p>
-        </div>
+      <div className="rounded-xl bg-background p-2 sm:p-3">
+        <div ref={receiptRef} id="order-receipt-print" className="mx-auto w-full max-w-md">
+          <TicketPerforation side="top" />
 
-        <div className="my-3 border-t border-dashed border-[#0D0D0D]/35" />
+          <article className="relative overflow-hidden bg-[#FFFDF8] text-[#13241c] shadow-[0_18px_40px_rgba(6,40,32,0.14)]">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 opacity-[0.35] mix-blend-multiply"
+              style={{
+                backgroundImage:
+                  "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E\")",
+              }}
+            />
 
-        <div className="space-y-1 text-[10px] text-[#374151]">
-          <div className="flex justify-between gap-2">
-            <span className="text-[#6B7280]">Date</span>
-            <span className="text-right font-medium text-[#111]">
-              {formatDateTime(order.createdAt)}
-            </span>
-          </div>
-          <div className="flex justify-between gap-2">
-            <span className="text-[#6B7280]">N° commande</span>
-            <span className="font-semibold tracking-wide text-[#111]">{order.orderCode}</span>
-          </div>
-          <div className="flex justify-between gap-2">
-            <span className="text-[#6B7280]">Client</span>
-            <span className="max-w-[65%] text-right font-medium text-[#111]">
-              {order.customerInfo.name}
-            </span>
-          </div>
-          <div className="flex justify-between gap-2">
-            <span className="text-[#6B7280]">Telephone</span>
-            <span className="font-medium text-[#111]">{order.customerInfo.phone}</span>
-          </div>
-          <div className="flex justify-between gap-2">
-            <span className="text-[#6B7280]">Type</span>
-            <span className="font-medium text-[#111]">
-              {order.deliveryType === "livraison" ? "Livraison" : "Retrait sur place"}
-            </span>
-          </div>
-          {order.deliveryType === "livraison" && order.customerInfo.address ? (
-            <div className="flex justify-between gap-2">
-              <span className="text-[#6B7280]">Adresse</span>
-              <span className="max-w-[65%] text-right font-medium text-[#111]">
-                {order.customerInfo.address}
-              </span>
-            </div>
-          ) : null}
-          <div className="flex justify-between gap-2">
-            <span className="text-[#6B7280]">Statut</span>
-            <span className="font-medium text-[#111]">
-              {ORDER_STATUS_LABELS[order.status] ?? order.status}
-            </span>
-          </div>
-        </div>
+            <div className="relative px-5 pb-6 pt-5 sm:px-7">
+              <header className="text-center">
+                <p className="font-[family-name:var(--font-display)] text-[1.35rem] font-extrabold tracking-tight text-palm sm:text-2xl">
+                  Chez DOSSOU-YOVO
+                </p>
+                <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-palm/55">
+                  Carte de commande
+                </p>
+              </header>
 
-        <div className="my-3 border-t border-dashed border-[#0D0D0D]/35" />
+              <div className="my-4 border-t border-dashed border-palm/25" />
 
-        <ul className="space-y-2.5">
-          {order.items.map((item, idx) => (
-            <li key={`${item.name}-${idx}`} className="text-[11px] leading-snug">
-              <p className="font-semibold text-[#0D0D0D]">{item.name}</p>
-              <div className="mt-0.5 flex justify-between gap-2 text-[10px] text-[#4B5563]">
-                <span>
-                  {item.quantity} × {formatPrice(item.price)}
-                </span>
-                <span className="shrink-0 font-medium tabular-nums text-[#111]">
-                  {formatPrice(item.price * item.quantity)}
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-palm/50">
+                    N° commande
+                  </p>
+                  <p className="mt-1 whitespace-nowrap font-[family-name:var(--font-display)] text-[0.95rem] font-extrabold tracking-tight text-palm sm:text-lg">
+                    {order.orderCode}
+                  </p>
+                </div>
+                <span
+                  className={`mt-1 shrink-0 select-none rounded-sm border-2 px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] sm:text-[11px] ${
+                    statusBadge.tone === "ready"
+                      ? "border-palm text-palm"
+                      : statusBadge.tone === "paid"
+                        ? "border-palm-soft text-palm-soft"
+                        : "border-chili text-chili"
+                  }`}
+                >
+                  {statusBadge.label}
                 </span>
               </div>
-            </li>
-          ))}
-        </ul>
 
-        <div className="my-3 border-t border-dashed border-[#0D0D0D]/35" />
+              <div className="my-4 border-t border-dashed border-palm/25" />
 
-        <div className="space-y-1.5 text-[11px]">
-          <div className="flex justify-between font-bold text-[#0D0D0D]">
-            <span className="tracking-wide">TOTAL</span>
-            <span className="tabular-nums text-[13px]">{formatPrice(order.total)}</span>
-          </div>
-          <div className="flex justify-between text-[10px] text-[#4B5563]">
-            <span>Paiement</span>
-            <span className="font-medium text-[#111]">Depot MoMo</span>
-          </div>
+              <dl className="grid gap-2 text-sm">
+                <div className="flex justify-between gap-3">
+                  <dt className="text-palm/55">Date</dt>
+                  <dd className="text-right font-medium tabular-nums">
+                    {formatDateTime(order.createdAt)}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-palm/55">Client</dt>
+                  <dd className="max-w-[65%] text-right font-semibold">
+                    {order.customerInfo.name}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-palm/55">Telephone</dt>
+                  <dd className="font-medium tabular-nums">{order.customerInfo.phone}</dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-palm/55">Service</dt>
+                  <dd className="max-w-[65%] text-right font-medium">{serviceLabel}</dd>
+                </div>
+              </dl>
+
+              <div className="my-4 border-t border-dashed border-palm/25" />
+
+              <div className="mb-2 flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.16em] text-palm/50">
+                <span>Articles</span>
+                <span>Montant</span>
+              </div>
+
+              <ul className="space-y-3">
+                {order.items.map((item, index) => (
+                  <li key={`${item.name}-${index}`} className="text-sm">
+                    <div className="flex items-baseline gap-2">
+                      <span className="min-w-0 font-semibold leading-snug">{item.name}</span>
+                      <span
+                        aria-hidden
+                        className="mb-1 flex-1 border-b border-dotted border-palm/30"
+                      />
+                      <span className="shrink-0 font-semibold tabular-nums">
+                        {formatPrice(item.price * item.quantity)}
+                      </span>
+                    </div>
+                    <p className="mt-0.5 text-xs text-palm/55">
+                      {item.quantity} × {formatPrice(item.price)}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-4 border-t-2 border-double border-palm/30 pt-3">
+                <div className="flex items-end justify-between gap-3">
+                  <span className="font-[family-name:var(--font-display)] text-lg font-bold text-palm">
+                    Total
+                  </span>
+                  <span className="font-[family-name:var(--font-display)] text-2xl font-extrabold tabular-nums text-palm">
+                    {formatPrice(order.total)}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-palm/55">Paiement par depot Mobile Money</p>
+              </div>
+
+              <p className="mt-6 text-center font-[family-name:var(--font-display)] text-sm italic text-palm/60">
+                Merci — a bientot au comptoir
+              </p>
+            </div>
+          </article>
+
+          <TicketPerforation side="bottom" />
         </div>
-
-        <p className="mt-5 border-t border-dashed border-[#0D0D0D]/35 pt-3 text-center text-[9px] leading-relaxed text-[#6B7280]">
-          Merci pour votre commande
-        </p>
       </div>
     </div>
   );

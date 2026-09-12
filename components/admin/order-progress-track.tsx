@@ -9,39 +9,70 @@ function stepIndex(status: OrderStatus) {
   return i < 0 ? 0 : i;
 }
 
-/** Barre d'etapes minimale (texte + points), sans cartes. */
+/**
+ * Index de la dernière étape validée.
+ * - en_attente : aucune (on attend encore le dépôt)
+ * - paye / pret : l’étape courante est considérée comme atteinte (donc cochée)
+ */
+function completedThroughIndex(status: OrderStatus) {
+  if (status === "en_attente") return -1;
+  return stepIndex(status);
+}
+
+/** Stepper horizontal pour la fiche commande admin. */
 export function OrderProgressTrack({ status }: { status: OrderStatus }) {
-  const current = stepIndex(status);
+  const completedThrough = completedThroughIndex(status);
+  const nextIndex = completedThrough + 1;
 
   return (
-    <ol className="flex flex-wrap items-center gap-x-2 gap-y-2 text-sm">
+    <ol className="grid grid-cols-3 gap-2">
       {STEPS.map((step, index) => {
-        const done = index < current;
-        const active = index === current;
+        const done = index <= completedThrough;
+        const active = !done && index === nextIndex;
         return (
-          <li key={step} className="flex items-center gap-2">
-            {index > 0 ? (
-              <span className="mx-1 hidden text-mist sm:inline" aria-hidden>
-                —
-              </span>
+          <li key={step} className="relative flex flex-col items-center gap-2 text-center">
+            {index < STEPS.length - 1 ? (
+              <span
+                aria-hidden
+                className={cn(
+                  "absolute left-[calc(50%+18px)] right-[calc(-50%+18px)] top-[15px] h-0.5",
+                  index < completedThrough ? "bg-palm" : "bg-border",
+                )}
+              />
             ) : null}
             <span
               className={cn(
-                "inline-flex items-center gap-1.5",
-                active && "font-semibold text-chili",
+                "relative z-[1] inline-flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-bold",
+                done && "border-palm bg-palm text-white",
+                active && "border-chili bg-chili/10 text-chili",
+                !done && !active && "border-border bg-surface text-ink-muted",
+              )}
+            >
+              {done ? (
+                <svg
+                  aria-hidden
+                  viewBox="0 0 24 24"
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="m8.8 12.3 2.2 2.3 4.2-4.6" />
+                </svg>
+              ) : (
+                index + 1
+              )}
+            </span>
+            <span
+              className={cn(
+                "text-[11px] font-semibold leading-tight sm:text-xs",
                 done && "text-palm",
+                active && "text-chili",
                 !done && !active && "text-ink-muted",
               )}
             >
-              <span
-                className={cn(
-                  "h-2 w-2 rounded-full",
-                  active && "bg-chili",
-                  done && "bg-palm",
-                  !done && !active && "bg-border",
-                )}
-                aria-hidden
-              />
               {ORDER_STATUS_LABELS[step]}
             </span>
           </li>
