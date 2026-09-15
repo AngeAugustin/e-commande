@@ -196,27 +196,38 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-ink-muted">Telephone</dt>
-              <dd className="mt-0.5">
+              <dt className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
+                Numero du client
+              </dt>
+              <dd className="mt-1.5">
                 <a
                   href={phoneHref}
-                  className="inline-flex items-center gap-2 text-base font-semibold text-chili transition hover:text-chili-hover"
+                  className="flex items-center gap-3 rounded-xl border border-chili/25 bg-chili/5 px-3 py-3 transition hover:border-chili/40 hover:bg-chili/10"
                 >
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    aria-hidden
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6.6 4.8c.4-.4 1-.5 1.5-.3l2.2.9c.5.2.8.7.7 1.2l-.4 2.1a1 1 0 0 0 .3.9l1.7 1.7a1 1 0 0 0 .9.3l2.1-.4c.5-.1 1 .2 1.2.7l.9 2.2c.2.5.1 1.1-.3 1.5l-1.1 1.1c-.5.5-1.2.7-1.9.5-2.1-.6-4.3-2.1-6.2-4S5.4 10.2 4.8 8.1c-.2-.7 0-1.4.5-1.9l1.3-1.4Z"
-                    />
-                  </svg>
-                  {order.customerInfo.phone}
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-chili/15 text-chili">
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      aria-hidden
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6.6 4.8c.4-.4 1-.5 1.5-.3l2.2.9c.5.2.8.7.7 1.2l-.4 2.1a1 1 0 0 0 .3.9l1.7 1.7a1 1 0 0 0 .9.3l2.1-.4c.5-.1 1 .2 1.2.7l.9 2.2c.2.5.1 1.1-.3 1.5l-1.1 1.1c-.5.5-1.2.7-1.9.5-2.1-.6-4.3-2.1-6.2-4S5.4 10.2 4.8 8.1c-.2-.7 0-1.4.5-1.9l1.3-1.4Z"
+                      />
+                    </svg>
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-xs font-medium text-ink-muted">
+                      Appeler
+                    </span>
+                    <span className="block font-[family-name:var(--font-display)] text-xl font-bold tracking-wide tabular-nums text-chili">
+                      {order.customerInfo.phone}
+                    </span>
+                  </span>
                 </a>
               </dd>
             </div>
