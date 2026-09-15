@@ -39,16 +39,22 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const ip = clientIpFromRequest(request);
-  const limited = rateLimit(`orders:${ip}`, { limit: 15, windowMs: 60 * 1000 });
-  if (!limited.ok) {
-    return NextResponse.json(
-      { message: "Trop de commandes. Reessayez dans un instant." },
-      {
-        status: 429,
-        headers: { "Retry-After": String(limited.retryAfterSec) },
-      },
-    );
+  const unauthorized = await ensureAdminApi();
+  const isAdmin = unauthorized === null;
+
+  if (!isAdmin) {
+    const ip = clientIpFromRequest(request);
+    const limited = rateLimit(`orders:${ip}`, { limit: 15, windowMs: 60 * 1000 });
+    if (!limited.ok) {
+      return NextResponse.json(
+        { message: "Trop de commandes. Reessayez dans un instant." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(limited.retryAfterSec) },
+        },
+      );
+    }
   }
+
   return createOrder(request);
 }

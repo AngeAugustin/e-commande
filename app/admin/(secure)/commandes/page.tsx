@@ -67,12 +67,31 @@ export default async function AdminCommandesPage({ searchParams }: AdminCommande
             Suivez toutes les commandes et mettez a jour les statuts en temps reel.
           </p>
         </div>
-        <Link
-          href="/admin/commandes"
-          className="inline-flex items-center justify-center rounded-xl bg-chili px-4 py-2 text-sm font-semibold text-white transition hover:bg-chili-hover"
-        >
-          Actualiser
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/admin/commandes"
+            className="inline-flex items-center justify-center rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold text-palm transition hover:border-palm/30 hover:bg-palm/5"
+          >
+            Actualiser
+          </Link>
+          <Link
+            href="/admin/commandes/nouvelle"
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-chili px-4 py-2 text-sm font-semibold text-white transition hover:bg-chili-hover"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              aria-hidden
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Nouvelle commande
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">

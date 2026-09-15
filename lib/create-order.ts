@@ -34,7 +34,7 @@ export async function createOrder(request: Request): Promise<NextResponse> {
     const { items, total, deliveryType, customerInfo } = resolved.data;
     const orderCode = generateOrderCode();
 
-    await Order.create({
+    const order = await Order.create({
       items,
       total,
       deliveryType,
@@ -46,7 +46,12 @@ export async function createOrder(request: Request): Promise<NextResponse> {
     });
 
     return NextResponse.json(
-      { orderCode, total, momoPayment: momo.data },
+      {
+        _id: String(order._id),
+        orderCode,
+        total,
+        momoPayment: momo.data,
+      },
       {
         status: 201,
         headers: { "Cache-Control": "no-store" },
