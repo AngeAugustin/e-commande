@@ -7,6 +7,7 @@ import {
   getCommandeTrackingStepIndex,
 } from "@/lib/commande-tracking";
 import type { MomoContact } from "@/lib/contact";
+import { RESTAURANT_LOCATION, RESTAURANT_NAME, RESTAURANT_TAGLINE } from "@/lib/constants";
 import { formatDateTime, formatPrice } from "@/lib/utils";
 import type { OrderStatus } from "@/types";
 
@@ -74,11 +75,12 @@ export function OrderTicket({
         <div className="relative px-5 pb-6 pt-5 sm:px-7">
           <header className="text-center">
             <p className="font-[family-name:var(--font-display)] text-[1.35rem] font-extrabold tracking-tight text-palm sm:text-2xl">
-              Chez DOSSOU-YOVO
+              {RESTAURANT_NAME}
             </p>
-            <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-palm/55">
-              Carte de commande
+            <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-palm/55">
+              {RESTAURANT_TAGLINE}
             </p>
+            <p className="mt-2 text-xs text-palm/70">{RESTAURANT_LOCATION}</p>
           </header>
 
           <div className="my-4 border-t border-dashed border-palm/25" />

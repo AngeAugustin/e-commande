@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { RESTAURANT_NAME, RESTAURANT_TAGLINE } from "@/lib/constants";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -70,10 +71,11 @@ export default function AdminLoginPage() {
                   <path d="M5 19h14" />
                 </svg>
               </span>
-              <span className="text-xs font-semibold tracking-[0.2em]">
-                Chez DOSSOU-YOVO
+              <span className="text-xs font-semibold tracking-[0.12em]">
+                {RESTAURANT_NAME}
               </span>
             </div>
+            <p className="mt-2 text-[11px] text-white/65">{RESTAURANT_TAGLINE}</p>
 
             <h1 className="mt-6 font-[family-name:var(--font-display)] text-3xl font-bold leading-tight sm:text-4xl">
               Espace de pilotage

@@ -87,20 +87,34 @@ export async function resolveMomoPayment(
   return { ok: true, data: selected };
 }
 
-/** Premier numéro WhatsApp (chiffres seuls), avec repli env. */
+/** Numéro WhatsApp du référentiel (chiffres seuls), ou null si absent. */
+export async function getWhatsAppNumberFromReferentiel(): Promise<string | null> {
+  try {
+    await connectToDatabase();
+    const row = await ContactNumber.findOne({ kind: "whatsapp" })
+      .sort({ updatedAt: -1, createdAt: -1 })
+      .lean();
+    if (!row?.number) return null;
+    const digits = String(row.number).replace(/\D/g, "");
+    return digits.length > 0 ? digits : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Numéro WhatsApp pour les liens publics : référentiel en priorité,
+ * puis repli env uniquement si aucun numéro n'est configuré.
+ */
 export async function getWhatsAppNumber() {
-  const rows = await listContactNumbers();
-  const first = rows.find((row) => row.kind === "whatsapp");
-  if (first) return first.number.replace(/\D/g, "");
+  const fromReferentiel = await getWhatsAppNumberFromReferentiel();
+  if (fromReferentiel) return fromReferentiel;
   return envWhatsAppDigits();
 }
 
 export async function getWhatsAppHref(prefillMessage?: string) {
   const phone = await getWhatsAppNumber();
-  if (!prefillMessage) {
-    return `https://wa.me/${phone}`;
-  }
-  return `https://wa.me/${phone}?text=${encodeURIComponent(prefillMessage)}`;
+  return buildWhatsAppHref(phone, prefillMessage);
 }
 
 export type OrderWhatsAppDetails = {

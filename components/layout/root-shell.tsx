@@ -11,7 +11,7 @@ export function RootShell({
   whatsappHref,
 }: {
   children: ReactNode;
-  whatsappHref: string;
+  whatsappHref: string | null;
 }) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");

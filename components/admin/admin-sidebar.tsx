@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { RESTAURANT_NAME, RESTAURANT_TAGLINE } from "@/lib/constants";
 import { ROLE_LABELS, canManageUsers, isStaffRole } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 
@@ -129,9 +130,9 @@ export function AdminSidebar({
             </span>
             <div>
               <p className="font-[family-name:var(--font-display)] text-base font-bold tracking-tight text-palm">
-                Chez DOSSOU-YOVO
+                {RESTAURANT_NAME}
               </p>
-              <p className="text-xs text-ink-muted">Back Office Admin</p>
+              <p className="text-xs text-ink-muted">{RESTAURANT_TAGLINE}</p>
             </div>
           </div>
           <button
@@ -167,9 +168,9 @@ export function AdminSidebar({
               </span>
               <div>
                 <p className="font-[family-name:var(--font-display)] text-base font-bold tracking-tight">
-                  Chez DOSSOU-YOVO
+                  {RESTAURANT_NAME}
                 </p>
-                <p className="text-xs text-white/70">Back Office</p>
+                <p className="text-xs text-white/70">{RESTAURANT_TAGLINE}</p>
               </div>
             </div>
           </div>

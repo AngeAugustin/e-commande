@@ -2,7 +2,7 @@ import PDFDocument from "pdfkit";
 import { NextResponse } from "next/server";
 
 import { ensureAdminApi } from "@/lib/api-guard";
-import { ORDER_STATUS_LABELS } from "@/lib/constants";
+import { ORDER_STATUS_LABELS, RESTAURANT_NAME } from "@/lib/constants";
 import { paidOrdersFilter } from "@/lib/order-payment";
 import { connectToDatabase } from "@/lib/mongodb";
 import { formatPrice } from "@/lib/utils";
@@ -44,10 +44,10 @@ export async function GET() {
 
     const doc = new PDFDocument({ margin: 40, size: "A4" });
     const now = new Date();
-    doc.info.Title = "Chez DOSSOU-YOVO - Rapport Dashboard";
-    doc.info.Author = "Chez DOSSOU-YOVO";
+    doc.info.Title = `${RESTAURANT_NAME} - Rapport Dashboard`;
+    doc.info.Author = RESTAURANT_NAME;
 
-    doc.fontSize(20).text("Chez DOSSOU-YOVO - Rapport Dashboard", {
+    doc.fontSize(20).text(`${RESTAURANT_NAME} - Rapport Dashboard`, {
       align: "left",
     });
     doc.moveDown(0.3);

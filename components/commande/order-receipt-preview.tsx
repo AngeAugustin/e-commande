@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
 import { getCommandeStatusBadge } from "@/lib/commande-tracking";
+import { RESTAURANT_NAME, RESTAURANT_TAGLINE } from "@/lib/constants";
 import { exportElementToPdf } from "@/lib/receipt-pdf";
 import { formatDateTime, formatPrice } from "@/lib/utils";
 import type { DeliveryType, OrderStatus } from "@/types";
@@ -149,10 +150,10 @@ export function OrderReceiptPreview({ order, showActions = true }: OrderReceiptP
             <div className="relative px-5 pb-6 pt-5 sm:px-7">
               <header className="text-center">
                 <p className="font-[family-name:var(--font-display)] text-[1.35rem] font-extrabold tracking-tight text-palm sm:text-2xl">
-                  Chez DOSSOU-YOVO
+                  {RESTAURANT_NAME}
                 </p>
-                <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-palm/55">
-                  Carte de commande
+                <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-palm/55">
+                  {RESTAURANT_TAGLINE}
                 </p>
               </header>
 

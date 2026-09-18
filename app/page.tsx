@@ -1,7 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { getWhatsAppHref } from "@/lib/contact";
+import { getWhatsAppNumberFromReferentiel, buildWhatsAppHref } from "@/lib/contact";
+import {
+  RESTAURANT_LOCATION,
+  RESTAURANT_NAME,
+  RESTAURANT_TAGLINE,
+} from "@/lib/constants";
 import { connectToDatabase } from "@/lib/mongodb";
 import { formatPrice } from "@/lib/utils";
 import { Product } from "@/models/Product";
@@ -183,10 +188,16 @@ async function getFeaturedDishes(): Promise<FeaturedDish[]> {
 }
 
 export default async function Home() {
-  const whatsappHref = await getWhatsAppHref(
-    "Bonjour, je souhaite passer une commande chez DOSSOU-YOVO.",
-  );
-  const featured = await getFeaturedDishes();
+  const [whatsappNumber, featured] = await Promise.all([
+    getWhatsAppNumberFromReferentiel(),
+    getFeaturedDishes(),
+  ]);
+  const whatsappHref = whatsappNumber
+    ? buildWhatsAppHref(
+        whatsappNumber,
+        `Bonjour, je souhaite passer une commande chez ${RESTAURANT_NAME}.`,
+      )
+    : null;
   const marqueeItems =
     featured.length > 0 ? [...featured, ...featured] : [];
 
@@ -222,12 +233,16 @@ export default async function Home() {
             Cuisine locale · Retrait sur place
           </p>
 
-          <p className="animate-fade-up mt-6 font-[family-name:var(--font-display)] text-[clamp(2.35rem,8.5vw,6.5rem)] font-bold leading-[0.88] tracking-[-0.03em]">
-            Chez
+          <p className="animate-fade-up mt-6 font-[family-name:var(--font-display)] text-[clamp(2.1rem,7.5vw,5.5rem)] font-bold leading-[0.92] tracking-[-0.03em]">
+            Chez Dossou
             <br />
             <span className="relative inline-block whitespace-nowrap">
-              DOSSOU-YOVO
+              - Yovo
             </span>
+          </p>
+
+          <p className="animate-fade-up mt-4 text-sm font-semibold tracking-[0.04em] text-saffron sm:text-base">
+            {RESTAURANT_TAGLINE}
           </p>
 
           <h1 className="animate-fade-up-delay mt-8 max-w-lg text-lg font-medium leading-snug text-white/90 sm:mt-10 sm:text-xl md:text-2xl">
@@ -408,8 +423,19 @@ export default async function Home() {
               La cuisine vous attend.
             </h2>
             <p className="mt-5 text-sm leading-relaxed text-white/70 sm:text-base">
-              Une question sur le menu ou les horaires&nbsp;? Écrivez-nous sur
-              WhatsApp — on répond vite.
+              Retrait sur place à {RESTAURANT_LOCATION}. Une question sur le menu
+              ou les horaires&nbsp;? Écrivez-nous sur WhatsApp
+              {whatsappNumber ? (
+                <>
+                  {" "}
+                  (
+                  <span className="font-semibold text-white/90">
+                    {whatsappNumber}
+                  </span>
+                  )
+                </>
+              ) : null}{" "}
+              — on répond vite.
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -419,22 +445,24 @@ export default async function Home() {
             >
               Ouvrir le menu
             </Link>
-            <Link
-              href={whatsappHref}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-8 py-4 text-sm font-bold text-white transition hover:bg-white/10"
-            >
-              <svg
-                aria-hidden
-                viewBox="0 0 24 24"
-                className="h-5 w-5 text-[#25D366]"
-                fill="currentColor"
+            {whatsappHref ? (
+              <Link
+                href={whatsappHref}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-8 py-4 text-sm font-bold text-white transition hover:bg-white/10"
               >
-                <path d="M20.52 3.48A11.88 11.88 0 0 0 12.04 0C5.47 0 .12 5.34.12 11.9c0 2.1.55 4.16 1.6 5.97L0 24l6.32-1.66a11.84 11.84 0 0 0 5.72 1.46h.01c6.57 0 11.92-5.35 11.92-11.9 0-3.18-1.24-6.16-3.45-8.42ZM12.05 21.8h-.01a9.86 9.86 0 0 1-5.03-1.38l-.36-.21-3.75.98 1-3.65-.23-.37a9.9 9.9 0 0 1-1.52-5.27c0-5.47 4.45-9.91 9.92-9.91 2.65 0 5.15 1.03 7.02 2.9a9.84 9.84 0 0 1 2.9 7 9.92 9.92 0 0 1-9.94 9.91Zm5.44-7.4c-.3-.15-1.78-.88-2.06-.98-.28-.1-.48-.15-.68.15-.2.3-.78.97-.96 1.16-.18.2-.35.22-.65.08-.3-.15-1.27-.47-2.42-1.5-.9-.8-1.5-1.78-1.68-2.08-.18-.3-.02-.46.13-.6.13-.13.3-.35.45-.53.15-.17.2-.3.3-.5.1-.2.05-.38-.02-.53-.08-.15-.68-1.64-.94-2.24-.25-.6-.5-.5-.68-.5h-.58c-.2 0-.53.07-.8.37-.28.3-1.06 1.03-1.06 2.5 0 1.48 1.08 2.9 1.23 3.1.15.2 2.12 3.23 5.14 4.54.72.31 1.28.5 1.72.63.72.23 1.38.2 1.9.12.58-.09 1.78-.73 2.03-1.43.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35Z" />
-              </svg>
-              WhatsApp
-            </Link>
+                <svg
+                  aria-hidden
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5 text-[#25D366]"
+                  fill="currentColor"
+                >
+                  <path d="M20.52 3.48A11.88 11.88 0 0 0 12.04 0C5.47 0 .12 5.34.12 11.9c0 2.1.55 4.16 1.6 5.97L0 24l6.32-1.66a11.84 11.84 0 0 0 5.72 1.46h.01c6.57 0 11.92-5.35 11.92-11.9 0-3.18-1.24-6.16-3.45-8.42ZM12.05 21.8h-.01a9.86 9.86 0 0 1-5.03-1.38l-.36-.21-3.75.98 1-3.65-.23-.37a9.9 9.9 0 0 1-1.52-5.27c0-5.47 4.45-9.91 9.92-9.91 2.65 0 5.15 1.03 7.02 2.9a9.84 9.84 0 0 1 2.9 7 9.92 9.92 0 0 1-9.94 9.91Zm5.44-7.4c-.3-.15-1.78-.88-2.06-.98-.28-.1-.48-.15-.68.15-.2.3-.78.97-.96 1.16-.18.2-.35.22-.65.08-.3-.15-1.27-.47-2.42-1.5-.9-.8-1.5-1.78-1.68-2.08-.18-.3-.02-.46.13-.6.13-.13.3-.35.45-.53.15-.17.2-.3.3-.5.1-.2.05-.38-.02-.53-.08-.15-.68-1.64-.94-2.24-.25-.6-.5-.5-.68-.5h-.58c-.2 0-.53.07-.8.37-.28.3-1.06 1.03-1.06 2.5 0 1.48 1.08 2.9 1.23 3.1.15.2 2.12 3.23 5.14 4.54.72.31 1.28.5 1.72.63.72.23 1.38.2 1.9.12.58-.09 1.78-.73 2.03-1.43.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35Z" />
+                </svg>
+                WhatsApp
+              </Link>
+            ) : null}
           </div>
         </div>
       </section>

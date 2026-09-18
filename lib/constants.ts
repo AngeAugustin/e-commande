@@ -1,5 +1,11 @@
 import type { OrderStatus } from "@/types";
 
+/** Nom commercial principal */
+export const RESTAURANT_NAME = "Chez Dossou - Yovo";
+/** Enseigne / slogan affiché sous le nom */
+export const RESTAURANT_TAGLINE = 'Restaurant "Manger Sain"';
+export const RESTAURANT_LOCATION = "Takon, Route de Sakété";
+
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   en_attente: "Attente depot MoMo",
   paye: "Payé",

@@ -1,5 +1,11 @@
 import { Types } from "mongoose";
 
+import {
+  isValidCustomerName,
+  isValidCustomerPhone,
+  sanitizeCustomerName,
+  sanitizeCustomerPhone,
+} from "@/lib/customer-info";
 import { Product } from "@/models/Product";
 import type { CartItem, DeliveryType } from "@/types";
 
@@ -47,12 +53,18 @@ export async function resolveOrderFromRequestBody(
   }
 
   const customerInfo = body.customerInfo as Record<string, unknown> | undefined;
-  const name = String(customerInfo?.name ?? "").trim();
-  const phone = String(customerInfo?.phone ?? "").trim();
+  const name = sanitizeCustomerName(String(customerInfo?.name ?? "")).trim();
+  const phone = sanitizeCustomerPhone(String(customerInfo?.phone ?? ""));
   const address = String(customerInfo?.address ?? "").trim();
 
   if (!name || !phone) {
     return { ok: false, message: "Nom et telephone client obligatoires" };
+  }
+  if (!isValidCustomerName(name)) {
+    return { ok: false, message: "Le nom ne doit contenir que des lettres" };
+  }
+  if (!isValidCustomerPhone(phone)) {
+    return { ok: false, message: "Le telephone ne doit contenir que des chiffres" };
   }
   if (name.length > MAX_NAME_LEN || phone.length > MAX_PHONE_LEN || address.length > MAX_ADDRESS_LEN) {
     return { ok: false, message: "Informations client trop longues" };

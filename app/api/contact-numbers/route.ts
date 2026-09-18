@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 
 import { ensureAdminApi } from "@/lib/api-guard";
 import { pickContactNumberFields } from "@/lib/contact-number-fields";
 import { connectToDatabase } from "@/lib/mongodb";
 import { ContactNumber } from "@/models/ContactNumber";
+
+function revalidatePublicContactPaths() {
+  revalidatePath("/");
+}
 
 export async function GET() {
   const unauthorized = await ensureAdminApi();
@@ -38,6 +43,7 @@ export async function POST(request: Request) {
 
     await connectToDatabase();
     const created = await ContactNumber.create(picked.data);
+    revalidatePublicContactPaths();
     return NextResponse.json(created, { status: 201 });
   } catch {
     return NextResponse.json(

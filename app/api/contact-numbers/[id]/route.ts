@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 
 import { ensureAdminApi } from "@/lib/api-guard";
 import { pickContactNumberFields } from "@/lib/contact-number-fields";
@@ -8,6 +9,10 @@ import { ContactNumber } from "@/models/ContactNumber";
 type RouteParams = {
   params: Promise<{ id: string }>;
 };
+
+function revalidatePublicContactPaths() {
+  revalidatePath("/");
+}
 
 export async function PUT(request: Request, { params }: RouteParams) {
   const unauthorized = await ensureAdminApi();
@@ -41,6 +46,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
         },
         { new: true, runValidators: true },
       );
+      revalidatePublicContactPaths();
       return NextResponse.json(updated);
     }
 
@@ -52,6 +58,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
       },
       { new: true, runValidators: true },
     );
+    revalidatePublicContactPaths();
     return NextResponse.json(updated);
   } catch {
     return NextResponse.json(
@@ -74,6 +81,7 @@ export async function DELETE(_: Request, { params }: RouteParams) {
     if (!deleted) {
       return NextResponse.json({ message: "Numero introuvable" }, { status: 404 });
     }
+    revalidatePublicContactPaths();
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json(

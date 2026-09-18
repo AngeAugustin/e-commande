@@ -4,7 +4,11 @@ import { connection } from "next/server";
 import "./globals.css";
 import { RootShell } from "@/components/layout/root-shell";
 import { ToastProvider } from "@/components/providers/toast-provider";
-import { getWhatsAppHref } from "@/lib/contact";
+import {
+  buildWhatsAppHref,
+  getWhatsAppNumberFromReferentiel,
+} from "@/lib/contact";
+import { RESTAURANT_NAME, RESTAURANT_TAGLINE } from "@/lib/constants";
 
 const body = Plus_Jakarta_Sans({
   variable: "--font-body",
@@ -19,9 +23,8 @@ const display = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Chez DOSSOU-YOVO | Commande en ligne",
-  description:
-    "Commandez vos plats chez DOSSOU-YOVO — cuisine locale, retrait sur place.",
+  title: `${RESTAURANT_NAME} | ${RESTAURANT_TAGLINE}`,
+  description: `Commandez vos plats chez ${RESTAURANT_NAME} — ${RESTAURANT_TAGLINE}, cuisine locale, retrait sur place.`,
 };
 
 export default async function RootLayout({
@@ -31,7 +34,8 @@ export default async function RootLayout({
 }>) {
   // Required for per-request CSP nonces (Next applies nonce from CSP header).
   await connection();
-  const whatsappHref = await getWhatsAppHref();
+  const whatsappNumber = await getWhatsAppNumberFromReferentiel();
+  const whatsappHref = whatsappNumber ? buildWhatsAppHref(whatsappNumber) : null;
 
   return (
     <html

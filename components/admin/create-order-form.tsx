@@ -9,6 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import type { MomoContact } from "@/lib/contact";
+import {
+  isValidCustomerName,
+  isValidCustomerPhone,
+  sanitizeCustomerName,
+  sanitizeCustomerPhone,
+} from "@/lib/customer-info";
 import { getMomoNetworkLogo } from "@/lib/momo-networks";
 import { formatPrice } from "@/lib/utils";
 import type { MomoNetwork, ProductDto } from "@/types";
@@ -97,6 +103,18 @@ export function CreateOrderForm({
       toast.error(msg);
       return;
     }
+    if (!isValidCustomerName(name)) {
+      const msg = "Le nom ne doit contenir que des lettres";
+      setSubmitError(msg);
+      toast.error(msg);
+      return;
+    }
+    if (!isValidCustomerPhone(phone)) {
+      const msg = "Le telephone ne doit contenir que des chiffres";
+      setSubmitError(msg);
+      toast.error(msg);
+      return;
+    }
     if (!hasMomo) {
       const msg = "Aucun numero MoMo configure. Ajoutez-en dans le referentiel.";
       setSubmitError(msg);
@@ -124,7 +142,7 @@ export function CreateOrderForm({
           deliveryType: "retrait",
           customerInfo: {
             name: name.trim(),
-            phone: phone.trim(),
+            phone: sanitizeCustomerPhone(phone),
             address: "",
           },
           ...(momoNetwork ? { momoNetwork } : {}),
@@ -270,8 +288,10 @@ export function CreateOrderForm({
               </label>
               <Input
                 required
+                autoComplete="name"
+                inputMode="text"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => setName(sanitizeCustomerName(e.target.value))}
                 placeholder="Nom du client"
                 maxLength={80}
               />
@@ -282,10 +302,13 @@ export function CreateOrderForm({
               </label>
               <Input
                 required
+                autoComplete="tel"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="Ex. 01 XX XX XX XX"
-                maxLength={30}
+                onChange={(e) => setPhone(sanitizeCustomerPhone(e.target.value))}
+                placeholder="Ex. 0197339551"
+                maxLength={15}
               />
             </div>
             <div className="rounded-xl border border-palm/20 bg-palm/5 px-3 py-2.5 text-sm text-palm">

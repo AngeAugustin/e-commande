@@ -1,7 +1,7 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { NextResponse } from "next/server";
 
-import { ORDER_STATUS_LABELS } from "@/lib/constants";
+import { ORDER_STATUS_LABELS, RESTAURANT_NAME, RESTAURANT_TAGLINE } from "@/lib/constants";
 import { isOrderPaid } from "@/lib/order-payment";
 import { connectToDatabase } from "@/lib/mongodb";
 import { formatPrice } from "@/lib/utils";
@@ -77,8 +77,8 @@ export async function GET(_: Request, { params }: RouteParams) {
       y -= size + 4;
     };
 
-    drawCentered("Chez DOSSOU-YOVO", 12, true);
-    drawCentered("Cuisine locale premium", 8, false);
+    drawCentered(RESTAURANT_NAME, 12, true);
+    drawCentered(RESTAURANT_TAGLINE, 8, false);
     drawCentered("Ticket de caisse", 8, false);
     drawLine("==========================================", 8, false);
     drawLine(`Commande : ${order.orderCode}`, 8, false);

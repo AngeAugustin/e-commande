@@ -9,6 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import type { MomoContact } from "@/lib/contact";
+import { RESTAURANT_LOCATION } from "@/lib/constants";
+import {
+  isValidCustomerName,
+  isValidCustomerPhone,
+  sanitizeCustomerName,
+  sanitizeCustomerPhone,
+} from "@/lib/customer-info";
 import { getMomoNetworkLogo } from "@/lib/momo-networks";
 import { formatPrice } from "@/lib/utils";
 import { getCartTotal, useCartStore } from "@/store/cart-store";
@@ -47,6 +54,18 @@ export function CheckoutForm({ momoOptions }: { momoOptions: MomoContact[] }) {
       toast.error(msg);
       return;
     }
+    if (!isValidCustomerName(name)) {
+      const msg = "Le nom ne doit contenir que des lettres";
+      setSubmitError(msg);
+      toast.error(msg);
+      return;
+    }
+    if (!isValidCustomerPhone(phone)) {
+      const msg = "Le telephone ne doit contenir que des chiffres";
+      setSubmitError(msg);
+      toast.error(msg);
+      return;
+    }
 
     setLoading(true);
     try {
@@ -58,7 +77,11 @@ export function CheckoutForm({ momoOptions }: { momoOptions: MomoContact[] }) {
           items,
           total,
           deliveryType: "retrait",
-          customerInfo: { name, phone, address: "" },
+          customerInfo: {
+            name: name.trim(),
+            phone: sanitizeCustomerPhone(phone),
+            address: "",
+          },
           ...(momoNetwork ? { momoNetwork } : {}),
         }),
       });
@@ -110,7 +133,12 @@ export function CheckoutForm({ momoOptions }: { momoOptions: MomoContact[] }) {
         </p>
 
         <div className="rounded-xl border border-palm/20 bg-palm/5 px-3 py-2.5 text-sm text-palm">
-          <span className="font-semibold">Mode :</span> Retrait au restaurant
+          <p>
+            <span className="font-semibold">Mode :</span> Retrait au restaurant
+          </p>
+          <p className="mt-1 text-xs text-palm/80">
+            Adresse : {RESTAURANT_LOCATION}
+          </p>
         </div>
 
         {!hasMomo ? (
@@ -123,15 +151,22 @@ export function CheckoutForm({ momoOptions }: { momoOptions: MomoContact[] }) {
         <form className="space-y-3" onSubmit={handleSubmit}>
           <Input
             required
+            autoComplete="name"
+            inputMode="text"
             placeholder="Nom complet"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            maxLength={80}
+            onChange={(e) => setName(sanitizeCustomerName(e.target.value))}
           />
           <Input
             required
+            autoComplete="tel"
+            inputMode="numeric"
+            pattern="[0-9]*"
             placeholder="Votre numero de telephone"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            maxLength={15}
+            onChange={(e) => setPhone(sanitizeCustomerPhone(e.target.value))}
           />
 
           {needsNetworkChoice ? (
