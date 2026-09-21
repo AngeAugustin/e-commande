@@ -14,6 +14,7 @@ const allLinks = [
   { href: "/admin/produits", label: "Produits", icon: "products" },
   { href: "/admin/commandes", label: "Commandes", icon: "orders" },
   { href: "/admin/referentiel", label: "Referentiel", icon: "referentiel" },
+  { href: "/admin/guide", label: "Guide", icon: "guide" },
   { href: "/admin/utilisateurs", label: "Utilisateurs", icon: "users", superOnly: true },
 ] as const;
 
@@ -64,6 +65,16 @@ function NavIcon({ type }: { type: (typeof allLinks)[number]["icon"] }) {
         <path d="M8 4a2 2 0 0 0-2 2v14" />
         <path d="M11 9h5" />
         <path d="M11 13h5" />
+      </svg>
+    );
+  }
+  if (type === "guide") {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z" />
+        <path d="M8 7h8" />
+        <path d="M8 11h6" />
       </svg>
     );
   }
@@ -214,7 +225,13 @@ export function AdminSidebar({
         <div
           className={cn(
             "grid gap-1 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2",
-            links.length >= 5 ? "grid-cols-5" : links.length === 4 ? "grid-cols-4" : "grid-cols-3",
+            links.length >= 6
+              ? "grid-cols-3"
+              : links.length >= 5
+                ? "grid-cols-5"
+                : links.length === 4
+                  ? "grid-cols-4"
+                  : "grid-cols-3",
           )}
         >
           {links.map((link) => (

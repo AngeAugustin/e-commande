@@ -1,9 +1,11 @@
+import Link from "next/link";
+
 import { RESTAURANT_LOCATION, RESTAURANT_NAME, RESTAURANT_TAGLINE } from "@/lib/constants";
 
 export function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-border/70 bg-palm-deep text-white">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-10 text-sm sm:flex-row sm:items-end sm:justify-between">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-10 text-sm sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-2">
           <div>
             <p className="font-[family-name:var(--font-display)] text-base font-bold tracking-tight">
@@ -33,7 +35,15 @@ export function SiteFooter() {
             </span>
           </p>
         </div>
-        <p className="text-white/70">Cuisine locale · Commande rapide · Suivi en direct</p>
+        <div className="flex flex-col gap-3 sm:items-end">
+          <p className="text-white/70">Cuisine locale · Commande rapide · Suivi en direct</p>
+          <Link
+            href="/comment-ca-marche"
+            className="text-sm font-semibold text-saffron transition hover:text-white"
+          >
+            Comment ça marche →
+          </Link>
+        </div>
       </div>
     </footer>
   );

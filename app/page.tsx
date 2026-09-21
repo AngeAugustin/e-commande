@@ -7,154 +7,10 @@ import {
   RESTAURANT_NAME,
   RESTAURANT_TAGLINE,
 } from "@/lib/constants";
+import { ORDER_STEPS } from "@/lib/how-it-works";
 import { connectToDatabase } from "@/lib/mongodb";
 import { formatPrice } from "@/lib/utils";
 import { Product } from "@/models/Product";
-
-function IconFlame({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
-      <path d="M12 3c1.5 3 1 5.5-.5 7.5C10 12 9 13.2 9 15a3 3 0 0 0 6 0c0-2.2-1.2-3.8-2.5-5.2C11.2 8.4 11 6.5 12 3Z" />
-      <path d="M12 18v.5" />
-    </svg>
-  );
-}
-
-function IconUtensils({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
-      <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
-      <path d="M7 2v20" />
-      <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
-    </svg>
-  );
-}
-
-function IconBowl({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
-      <path d="M3 12a9 9 0 0 0 18 0" />
-      <path d="M12 5v2" />
-      <path d="M8 7c1.2 1 2.5 1.5 4 1.5S14.8 8 16 7" />
-    </svg>
-  );
-}
-
-function IconChefHat({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
-      <path d="M6 14c-1.7 0-3-1.3-3-3 0-1.4 1-2.6 2.3-2.9A4 4 0 0 1 12 5a4 4 0 0 1 6.7 3.1C20 8.4 21 9.6 21 11c0 1.7-1.3 3-3 3" />
-      <path d="M6 14v4a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-4" />
-    </svg>
-  );
-}
-
-function IconLeaf({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
-      <path d="M11 20A17 17 0 0 1 4 7c5-1 10 1 13 5a17 17 0 0 1-6 8Z" />
-      <path d="M2 21c5-3 8-6 9-9" />
-    </svg>
-  );
-}
-
-function IconCup({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
-      <path d="M5 7h11v7a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V7Z" />
-      <path d="M16 9h2.5a2.5 2.5 0 0 1 0 5H16" />
-      <path d="M8 21h5" />
-    </svg>
-  );
-}
-
-function IconPlate({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
-      <circle cx="12" cy="12" r="9" />
-      <circle cx="12" cy="12" r="4" />
-    </svg>
-  );
-}
-
-function IconPepper({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
-      <path d="M12 4c.8 0 1.5.5 1.8 1.2L15 8c2.5 1.2 4 3.5 4 6.2A5.8 5.8 0 0 1 13.2 20H10A5 5 0 0 1 5 15.2C5 11.8 7 9 10 8l1.2-2.8C11.5 4.5 12.2 4 13 4h-1Z" />
-      <path d="M12 4c0-1 .6-2 2-2" />
-    </svg>
-  );
-}
-
-function IconClock({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v5l3 2" />
-    </svg>
-  );
-}
-
-function IconBag({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
-      <path d="M6 4h12l-1 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 4Z" />
-      <path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1" />
-      <path d="M5 8h14" />
-    </svg>
-  );
-}
-
-function IconStar({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
-      <path d="m12 3 2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 15.9 7.2 18l.9-5.4L4.2 8.7l5.4-.8L12 3Z" />
-    </svg>
-  );
-}
-
-function IconFish({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
-      <path d="M6.5 12c2-4 6-6.5 11-6.5 0 0 1.5 3 1.5 6.5S17.5 18.5 17.5 18.5c-5 0-9-2.5-11-6.5Z" />
-      <path d="M6.5 12 3 9v6l3.5-3Z" />
-      <circle cx="15.5" cy="10.5" r="0.8" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-
-const MOSAIC_ICONS = [
-  { id: "flame", Icon: IconFlame, tone: "text-chili/50" },
-  { id: "utensils", Icon: IconUtensils, tone: "text-white/35" },
-  { id: "bowl", Icon: IconBowl, tone: "text-saffron/40" },
-  { id: "chef", Icon: IconChefHat, tone: "text-white/32" },
-  { id: "leaf", Icon: IconLeaf, tone: "text-saffron/45" },
-  { id: "cup", Icon: IconCup, tone: "text-chili/40" },
-  { id: "plate", Icon: IconPlate, tone: "text-white/35" },
-  { id: "pepper", Icon: IconPepper, tone: "text-chili/45" },
-  { id: "clock", Icon: IconClock, tone: "text-white/30" },
-  { id: "bag", Icon: IconBag, tone: "text-saffron/35" },
-  { id: "star", Icon: IconStar, tone: "text-white/28" },
-  { id: "fish", Icon: IconFish, tone: "text-chili/35" },
-] as const;
-
-const STEPS = [
-  {
-    label: "Menu",
-    title: "Choisissez",
-    text: "Parcourez les plats du jour et composez votre panier.",
-  },
-  {
-    label: "Cuisine",
-    title: "On prépare",
-    text: "Validez, payez par MoMo — la cuisine s’occupe du reste.",
-  },
-  {
-    label: "Comptoir",
-    title: "Retirez",
-    text: "Suivez l’avancement et passez chercher au restaurant.",
-  },
-] as const;
 
 export const revalidate = 60;
 
@@ -203,37 +59,28 @@ export default async function Home() {
 
   return (
     <div className="bg-background">
-      {/* —— Hero mosaïque d’icônes —— */}
+      {/* —— Hero —— */}
       <section className="relative isolate min-h-[100svh] overflow-hidden bg-palm-deep text-white">
         <div aria-hidden className="absolute inset-0">
-          <div className="hero-mosaic absolute inset-0">
-            {MOSAIC_ICONS.map(({ id, Icon, tone }, index) => (
-              <div
-                key={id}
-                className="hero-mosaic-cell flex items-center justify-center"
-              >
-                <Icon
-                  className={`h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 ${tone} ${
-                    index % 3 === 0
-                      ? "-rotate-6"
-                      : index % 3 === 1
-                        ? "rotate-6"
-                        : ""
-                  }`}
-                />
-              </div>
-            ))}
-          </div>
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(6,40,32,0.45)_0%,rgba(6,40,32,0.88)_62%,rgba(6,40,32,0.96)_100%)]" />
-          <div className="film-grain pointer-events-none absolute inset-0 opacity-[0.22]" />
+          <Image
+            src="/accueil.jpg"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="animate-hero-ken object-cover object-[center_20%]"
+          />
+          <div className="absolute inset-0 bg-palm-deep/55" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,40,32,0.35)_0%,rgba(6,40,32,0.5)_40%,rgba(6,40,32,0.82)_100%)]" />
+          <div className="film-grain pointer-events-none absolute inset-0 opacity-[0.12]" />
         </div>
 
         <div className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-3xl flex-col items-center justify-center px-5 pb-20 pt-28 text-center sm:px-8">
-          <p className="animate-fade-up text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-saffron/90 sm:text-xs">
+          <p className="animate-fade-up text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-saffron sm:text-xs [text-shadow:0_1px_12px_rgba(6,40,32,0.8)]">
             Cuisine locale · Retrait sur place
           </p>
 
-          <p className="animate-fade-up mt-6 font-[family-name:var(--font-display)] text-[clamp(2.1rem,7.5vw,5.5rem)] font-bold leading-[0.92] tracking-[-0.03em]">
+          <p className="animate-fade-up mt-6 font-[family-name:var(--font-display)] text-[clamp(2.1rem,7.5vw,5.5rem)] font-bold leading-[0.92] tracking-[-0.03em] [text-shadow:0_2px_24px_rgba(6,40,32,0.85)]">
             Chez Dossou
             <br />
             <span className="relative inline-block whitespace-nowrap">
@@ -241,15 +88,15 @@ export default async function Home() {
             </span>
           </p>
 
-          <p className="animate-fade-up mt-4 text-sm font-semibold tracking-[0.04em] text-saffron sm:text-base">
+          <p className="animate-fade-up mt-4 text-sm font-semibold tracking-[0.04em] text-saffron sm:text-base [text-shadow:0_1px_12px_rgba(6,40,32,0.8)]">
             {RESTAURANT_TAGLINE}
           </p>
 
-          <h1 className="animate-fade-up-delay mt-8 max-w-lg text-lg font-medium leading-snug text-white/90 sm:mt-10 sm:text-xl md:text-2xl">
+          <h1 className="animate-fade-up-delay mt-8 max-w-lg text-lg font-medium leading-snug text-white sm:mt-10 sm:text-xl md:text-2xl [text-shadow:0_2px_18px_rgba(6,40,32,0.9)]">
             Le goût du feu, commandé en un geste.
           </h1>
 
-          <p className="animate-fade-up-delay mt-3 max-w-md text-sm leading-relaxed text-white/65 sm:text-base">
+          <p className="animate-fade-up-delay mt-3 max-w-md text-sm leading-relaxed text-white/85 sm:text-base [text-shadow:0_1px_14px_rgba(6,40,32,0.85)]">
             Menu du jour, paiement MoMo, suivi en direct — prêt pour votre
             table.
           </p>
@@ -371,15 +218,31 @@ export default async function Home() {
 
       {/* —— Parcours —— */}
       <section className="kitchen-grain mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-24">
-        <p className="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-chili">
-          Comment commander
-        </p>
-        <h2 className="mt-3 max-w-xl font-[family-name:var(--font-display)] text-3xl font-bold text-palm sm:text-4xl">
-          Trois gestes, puis à table.
-        </h2>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-chili">
+              Comment commander
+            </p>
+            <h2 className="mt-3 max-w-xl font-[family-name:var(--font-display)] text-3xl font-bold text-palm sm:text-4xl">
+              Trois gestes, puis à table.
+            </h2>
+          </div>
+          <Link
+            href="/comment-ca-marche"
+            className="group inline-flex items-center gap-2 text-sm font-semibold text-palm transition hover:text-chili"
+          >
+            Guide complet
+            <span
+              aria-hidden
+              className="transition-transform group-hover:translate-x-0.5"
+            >
+              →
+            </span>
+          </Link>
+        </div>
 
         <ol className="mt-12 grid gap-0 border-t border-border sm:grid-cols-3">
-          {STEPS.map((step, index) => (
+          {ORDER_STEPS.map((step, index) => (
             <li
               key={step.title}
               className="border-b border-border py-8 sm:border-b-0 sm:border-r sm:px-6 sm:py-10 sm:first:ps-0 sm:last:border-r-0 sm:last:pe-0"

@@ -76,13 +76,21 @@ export default async function AdminDashboardPage() {
             Vue rapide de l&apos;activite du restaurant.
           </p>
         </div>
-        <Link
-          href="/api/stats/export"
-          target="_blank"
-          className="inline-flex items-center justify-center rounded-xl bg-chili px-4 py-2 text-sm font-semibold text-white transition hover:bg-chili-hover"
-        >
-          Exporter
-        </Link>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <Link
+            href="/admin/guide"
+            className="inline-flex items-center justify-center rounded-full border border-border bg-surface px-4 py-2 text-sm font-semibold text-palm transition hover:border-palm/30 hover:bg-palm/5"
+          >
+            Guide d&apos;utilisation
+          </Link>
+          <Link
+            href="/api/stats/export"
+            target="_blank"
+            className="inline-flex items-center justify-center rounded-xl bg-chili px-4 py-2 text-sm font-semibold text-white transition hover:bg-chili-hover"
+          >
+            Exporter
+          </Link>
+        </div>
       </div>
 
       <DashboardAnalytics

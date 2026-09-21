@@ -235,26 +235,6 @@ h4 {
   mix-blend-mode: overlay;
 }
 
-.hero-mosaic {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(4, 1fr);
-  gap: 1px;
-  height: 100%;
-  background: rgba(197, 221, 211, 0.12);
-}
-
-.hero-mosaic-cell {
-  background: rgba(6, 40, 32, 0.92);
-}
-
-@media (min-width: 768px) {
-  .hero-mosaic {
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-  }
-}
-
 @keyframes scroll-line {
   0% {
     transform: scaleY(0);

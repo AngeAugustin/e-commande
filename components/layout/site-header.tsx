@@ -11,6 +11,7 @@ import { useCartStore } from "@/store/cart-store";
 const links = [
   { href: "/", label: "Accueil" },
   { href: "/menu", label: "Menu" },
+  { href: "/comment-ca-marche", label: "Comment ça marche" },
   { href: "/suivi", label: "Suivi" },
 ];
 
@@ -24,6 +25,7 @@ export function SiteHeader({ whatsappHref }: { whatsappHref: string | null }) {
   const mobileLinks = [
     { href: "/", label: "Accueil" },
     { href: "/menu", label: "Menu" },
+    { href: "/comment-ca-marche", label: "Guide" },
     { href: "/suivi", label: "Suivi" },
     { href: "/panier", label: "Panier" },
   ];
@@ -173,7 +175,7 @@ export function SiteHeader({ whatsappHref }: { whatsappHref: string | null }) {
       </header>
 
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-surface/95 backdrop-blur-md md:hidden">
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-4 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2">
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-5 px-1 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 sm:px-2">
           {mobileLinks.map((link) => {
             const isActive =
               link.href === "/"
@@ -184,7 +186,7 @@ export function SiteHeader({ whatsappHref }: { whatsappHref: string | null }) {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`relative flex flex-col items-center gap-1 rounded-xl py-2 text-xs font-semibold transition ${
+                className={`relative flex flex-col items-center gap-1 rounded-xl py-2 text-[11px] font-semibold transition sm:text-xs ${
                   isActive ? "text-chili" : "text-ink-muted hover:text-palm"
                 }`}
               >
@@ -222,6 +224,23 @@ export function SiteHeader({ whatsappHref }: { whatsappHref: string | null }) {
                   </svg>
                 ) : null}
 
+                {link.href === "/comment-ca-marche" ? (
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M9.1 9a3 3 0 1 1 4.2 2.7c-.8.4-1.3 1-1.3 1.8" />
+                    <path d="M12 17h.01" />
+                  </svg>
+                ) : null}
+
                 {link.href === "/suivi" ? (
                   <svg
                     aria-hidden="true"
@@ -255,7 +274,7 @@ export function SiteHeader({ whatsappHref }: { whatsappHref: string | null }) {
                       <path d="M3 4h2l2.4 10.5h10.8L21 7H6.8" />
                     </svg>
                     {count > 0 ? (
-                      <span className="absolute right-5 top-1 rounded-full bg-chili px-1.5 text-[10px] text-white">
+                      <span className="absolute right-1 top-1 rounded-full bg-chili px-1.5 text-[10px] text-white sm:right-3">
                         {count}
                       </span>
                     ) : null}
