@@ -10,14 +10,19 @@ export type ProductWritableFields = {
 const MAX_NAME = 120;
 const MAX_DESCRIPTION = 2000;
 const MAX_CATEGORY = 80;
-const MAX_IMAGE = 500;
+const MAX_IMAGE = 800;
 
-/** Images autorisées : uploads locaux ou Unsplash (aligné CSP / next/image). */
+/** Images autorisées : Vercel Blob, uploads locaux legacy, ou Unsplash. */
 export function isAllowedProductImage(image: string): boolean {
+  if (/^https:\/\/[a-z0-9.-]+\.public\.blob\.vercel-storage\.com\/[^\s]+$/i.test(image)) {
+    return true;
+  }
+  if (/^https:\/\/public\.blob\.vercel-storage\.com\/[^\s]+$/i.test(image)) return true;
   if (/^\/uploads\/[a-zA-Z0-9._-]+$/.test(image)) return true;
   if (/^https:\/\/images\.unsplash\.com\/[^\s]+$/i.test(image)) return true;
   return false;
 }
+
 
 export function pickProductFields(
   body: Record<string, unknown>,
@@ -46,7 +51,8 @@ export function pickProductFields(
   if (!isAllowedProductImage(image)) {
     return {
       ok: false,
-      message: "URL image invalide (uploads locaux ou Unsplash uniquement)",
+      message: "URL image invalide (Vercel Blob, uploads locaux ou Unsplash uniquement)",
+
     };
   }
 

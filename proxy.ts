@@ -13,9 +13,10 @@ function buildCsp(nonce: string) {
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https://images.unsplash.com",
+    "img-src 'self' data: blob: https://images.unsplash.com https://*.public.blob.vercel-storage.com",
     "font-src 'self' data:",
-    "connect-src 'self'",
+    "connect-src 'self' https://*.public.blob.vercel-storage.com",
+
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

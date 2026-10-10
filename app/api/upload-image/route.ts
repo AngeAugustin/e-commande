@@ -1,10 +1,10 @@
 import { randomUUID } from "crypto";
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
 
 import { NextResponse } from "next/server";
 
 import { ensureAdminApi } from "@/lib/api-guard";
+import { uploadToBlob } from "@/lib/blob";
+import { clientIpFromRequest, rateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -34,6 +34,12 @@ function detectImageExt(buffer: Buffer): "jpg" | "png" | "webp" | null {
   return null;
 }
 
+function contentTypeForExt(ext: "jpg" | "png" | "webp"): string {
+  if (ext === "png") return "image/png";
+  if (ext === "webp") return "image/webp";
+  return "image/jpeg";
+}
+
 export async function POST(request: Request) {
   const unauthorized = await ensureAdminApi();
   if (unauthorized) {
@@ -41,6 +47,15 @@ export async function POST(request: Request) {
   }
 
   try {
+    const ip = clientIpFromRequest(request);
+    const limited = rateLimit(`upload:${ip}`, { limit: 30, windowMs: 60_000 });
+    if (!limited.ok) {
+      return NextResponse.json(
+        { message: "Trop de requetes, reessayez plus tard" },
+        { status: 429, headers: { "Retry-After": String(limited.retryAfterSec) } },
+      );
+    }
+
     const formData = await request.formData();
     const file = formData.get("file");
 
@@ -81,13 +96,24 @@ export async function POST(request: Request) {
       );
     }
 
-    const fileName = `${Date.now()}-${randomUUID()}.${ext}`;
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(uploadDir, { recursive: true });
-    await writeFile(path.join(uploadDir, fileName), buffer);
+    const fileName = `${Date.now()}-${randomUUID().slice(0, 8)}.${ext}`;
+    const url = await uploadToBlob(`products/${fileName}`, buffer, {
+      contentType: contentTypeForExt(ext),
+    });
 
-    return NextResponse.json({ url: `/uploads/${fileName}` }, { status: 201 });
-  } catch {
-    return NextResponse.json({ message: "Upload image impossible" }, { status: 500 });
+    return NextResponse.json({ url }, { status: 201 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Upload image impossible";
+    const isConfig =
+      /BLOB_READ_WRITE_TOKEN|token|Unauthorized|401/i.test(message) ||
+      !process.env.BLOB_READ_WRITE_TOKEN;
+    return NextResponse.json(
+      {
+        message: isConfig
+          ? "Upload image impossible (BLOB_READ_WRITE_TOKEN manquant ou invalide)"
+          : "Upload image impossible",
+      },
+      { status: 500 },
+    );
   }
 }
