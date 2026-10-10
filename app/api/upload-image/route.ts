@@ -103,17 +103,16 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url }, { status: 201 });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Upload image impossible";
-    const isConfig =
-      /BLOB_READ_WRITE_TOKEN|token|Unauthorized|401/i.test(message) ||
-      !process.env.BLOB_READ_WRITE_TOKEN;
+    const detail = error instanceof Error ? error.message : "Erreur inconnue";
+    console.error("[upload-image]", detail, {
+      hasReadWriteToken: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+      hasStoreId: Boolean(process.env.BLOB_STORE_ID),
+      hasOidc: Boolean(process.env.VERCEL_OIDC_TOKEN),
+    });
     return NextResponse.json(
-      {
-        message: isConfig
-          ? "Upload image impossible (BLOB_READ_WRITE_TOKEN manquant ou invalide)"
-          : "Upload image impossible",
-      },
+      { message: `Upload image impossible: ${detail}` },
       { status: 500 },
     );
   }
 }
+
